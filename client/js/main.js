@@ -8,7 +8,7 @@ canvas_height = window.innerHeight * window.devicePixelRatio;
 game = new Phaser.Game(canvas_width,canvas_height, Phaser.CANVAS, 'gameDiv');
 
 var player;
-var speed = 1;
+var speed = 5;
 
 
 var main = function(game){
@@ -16,35 +16,40 @@ var main = function(game){
 
 main.prototype = {
 	create: function() {
-		var posX = game.rnd.integerInRange(0, canvas_height - 70);
-		var posY = game.rnd.integerInRange(0, canvas_width - 70);
-		player = new Phaser.Rectangle(posX, posY, 70, 70);
+		var graphics = game.add.graphics(0,0);
+		graphics.beginFill(0x2621c4, 1);
+		player = graphics;
 	},
 
 	update: function () {
 
 	    if (game.input.keyboard.isDown(Phaser.Keyboard.LEFT))
 	    {
-	        player.centerX -= speed;
+	        player.x -= speed;
+
 	    }
 	    else if (game.input.keyboard.isDown(Phaser.Keyboard.RIGHT))
 	    {
-	        player.centerX += speed;
+	        player.x += speed;
 	    }
 
 	    if (game.input.keyboard.isDown(Phaser.Keyboard.UP))
 	    {
-	        player.centerY -= speed;
+	        player.y -= speed;
 	    }
 	    else if (game.input.keyboard.isDown(Phaser.Keyboard.DOWN))
 	    {
-	        player.centerY += speed;
+	        player.y += speed;
 	    }
+	    player.drawCircle(300,300,100);
 	}
 }
 
-function render () {
+var gameBootstrapper = {
+    init: function(gameContainerElementId){
+		game.state.add('main', main);
+		game.state.start('main'); 
+    }
+};;
 
-    game.debug.geom(player,'#0fffff');
-
-}
+gameBootstrapper.init("gameDiv");
