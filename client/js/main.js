@@ -15,33 +15,42 @@ var main = function(game){
 };
 
 main.prototype = {
+	preload: function() {
+		 game.load.image('circle', '/assets/circle.png');
+	},
 	create: function() {
-		var graphics = game.add.graphics(0,0);
-		graphics.beginFill(0x2621c4, 1);
-		player = graphics;
+
+		game.physics.startSystem(Phaser.Physics.P2JS);
+
+		    //  Add a sprite
+		player = game.add.sprite(200, 200, 'circle');
+
+    	//  Enable if for physics. This creates a default rectangular body.
+		game.physics.p2.enable(player);
+
+		cursors = game.input.keyboard.createCursorKeys();
 	},
 
 	update: function () {
+		player.body.setZeroVelocity();
 
-	    if (game.input.keyboard.isDown(Phaser.Keyboard.LEFT))
+	    if (cursors.left.isDown)
 	    {
-	        player.x -= speed;
+	    	player.body.moveLeft(400);
+	    }
+	    else if (cursors.right.isDown)
+	    {
+	    	player.body.moveRight(400);
+	    }
 
-	    }
-	    else if (game.input.keyboard.isDown(Phaser.Keyboard.RIGHT))
+	    if (cursors.up.isDown)
 	    {
-	        player.x += speed;
+	    	player.body.moveUp(400);
 	    }
-
-	    if (game.input.keyboard.isDown(Phaser.Keyboard.UP))
+	    else if (cursors.down.isDown)
 	    {
-	        player.y -= speed;
+	    	player.body.moveDown(400);
 	    }
-	    else if (game.input.keyboard.isDown(Phaser.Keyboard.DOWN))
-	    {
-	        player.y += speed;
-	    }
-	    player.drawCircle(300,300,100);
 	}
 }
 

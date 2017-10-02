@@ -5,6 +5,7 @@ var ioHandle = require('socket.io').listen(serv);
 
 app.use('/js',exp.static(__dirname + '/client/js'));
 app.use('/phaser',exp.static(__dirname + '/client/phaser'));
+app.use('/assets',exp.static(__dirname + '/client/assets'))
 
 
 app.get('/',function (req, res) {
