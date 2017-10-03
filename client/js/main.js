@@ -2,7 +2,7 @@
 var socket; 
 socket = io.connect();
 
-game = new Phaser.Game(800, 600, Phaser.CANVAS, 'gameDiv');
+game = new Phaser.Game(document.documentElement.clientWidth - 20, document.documentElement.clientHeight - 20, Phaser.CANVAS, 'gameDiv');
 
 var player;
 var enemies = [];
@@ -13,7 +13,7 @@ var main = function(game){
 function onsocketConnected () {
 	console.log("connected to server"); 
 	// send the server our initial position and tell it we are connected
-	socket.emit('new_player', {x: 200, y: 200});
+	socket.emit('new_player', {x: game.world.centerX, y: game.world.centerY});
 }
 
 // When the server notifies us of client disconnection, we find the disconnected
@@ -22,11 +22,12 @@ function onRemovePlayer (data) {
 	var removePlayer = find_Player_by_id(data.id);
 	// Player not found
 	if (!removePlayer) {
-		console.log('Player not found: ', data.id)
+		console.log('Player not found: ', data.id);
 		return;
 	}
-	removePlayer.player.destroy();
+
 	enemies.splice(enemies.indexOf(removePlayer), 1);
+	removePlayer.play.destroy();
 }
 
 
@@ -73,19 +74,23 @@ function find_Player_by_id (id){
 main.prototype = {
 	preload: function() {
 		 game.load.image('circle', '/assets/circle.png');
+		 game.load.image('backdrop','/assets/backdrop.png');
 	},
 	create: function() {
+		game.world.setBounds(0, 0, 3000, 3000);
 		game.physics.startSystem(Phaser.Physics.P2JS);
+		game.stage.backgroundColor = 0xE1A193;
+		game.add.tileSprite(0,0,3000,3000,'backdrop');
 		//  Add a sprite
-		player = game.add.sprite(200, 200, 'circle');
+		player = game.add.sprite(game.world.centerX, game.world.centerY	, 'circle');
 		player.anchor.set(0.5);
 	    //  Enable if for physics. This creates a default rectangular body.
 		game.physics.p2.enable(player);
 
 		cursors = game.input.keyboard.createCursorKeys();
 
-		game.stage.backgroundColor = 0xE1A193;;
-
+		// add inbuilt follow cam
+		game.camera.follow(player, Phaser.Camera.FOLLOW_LOCKON, 1, 1);
 		console.log("client started");
 		socket.on("connect", onsocketConnected);
 		onsocketConnected();
