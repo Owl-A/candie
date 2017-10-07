@@ -35,8 +35,7 @@ console.log(data);
 	var current_info = {
 		id: newPlayer.id, 
 		x: newPlayer.x,
-		y: newPlayer.y,
-		angle: newPlayer.angle,
+		y: newPlayer.y
 	}; 
 	
 	//send to the new player about everyone who is already connected. 	
@@ -46,7 +45,6 @@ console.log(data);
 			id: existingPlayer.id,
 			x: existingPlayer.x,
 			y: existingPlayer.y, 
-			angle: existingPlayer.angle,			
 		};
 		console.log("pushing player");
 		//send message to the sender-client only
@@ -100,10 +98,10 @@ function findPlayer (id){
 
 io.sockets.on('connection', function(socket){
 	console.log("socket connected"); 
-	// listen for disconnection; 
+	
 	socket.on('disconnect', onClientdisconnect); 
-	// listen for new player
+	
 	socket.on("new_player", onNewplayer);
-	// listen for player position update
+	
 	socket.on("move_player", onMovePlayer);
 });
