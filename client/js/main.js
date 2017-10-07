@@ -3,8 +3,9 @@ var socket;
 socket = io.connect();
 
 game = new Phaser.Game(document.documentElement.clientWidth - 20, document.documentElement.clientHeight - 20, Phaser.CANVAS, 'gameDiv');
-
-var player;
+game.config.forceSetTimeOut = true;	
+var collisionGrp;
+var player;	
 var enemies = [];
 
 var main = function(game){
@@ -45,7 +46,14 @@ function onNewPlayer (data) {
 	//enemy object 
 	var new_enemy = new remote_player(data.id, data.x, data.y); 
 	new_enemy.play.anchor.set(0.5);
+	game.physics.p2.enable(new_enemy.play);
+	new_enemy.play.body.setCollisionGroup(collisionGrp);
+	new_enemy.play.body.collides([collisionGrp]);
 	enemies.push(new_enemy);
+}
+
+function onCollision() {
+	console.log("collides");	
 }
 
 //Server tells us there is a new enemy movement. We find the moved enemy
@@ -58,8 +66,9 @@ function onEnemyMove (data) {
 	if (!movePlayer) {
 		return;
 	}
-	movePlayer.play.x = data.x;
-	movePlayer.play.y = data.y; 
+	movePlayer.play.body.x = data.x;
+	movePlayer.play.body.y = data.y; 
+	// movePlayer.play.velocity
 }
 
 
@@ -79,13 +88,25 @@ main.prototype = {
 	create: function() {
 		game.world.setBounds(0, 0, 3000, 3000);
 		game.physics.startSystem(Phaser.Physics.P2JS);
+		game.stage.disableVisibilityChange = true;
+		game.physics.p2.setImpactEvents(true);
+	    game.physics.p2.restitution = 1;
+	    collisionGrp = game.physics.p2.createCollisionGroup(); 
 		game.stage.backgroundColor = 0xE1A193;
 		game.add.tileSprite(0,0,3000,3000,'backdrop');
+		game.physics.p2.updateBoundsCollisionGroup();
 		//  Add a sprite
 		player = game.add.sprite(game.world.centerX, game.world.centerY	, 'circle');
 		player.anchor.set(0.5);
+    	game.physics.p2.enable(player);
+		player.body.setCollisionGroup(collisionGrp);
+		player.body.collides([collisionGrp]);
+		
+		// under speculation
+		player.body.collides(collisionGrp,onCollision,this);
+
+
 	    //  Enable if for physics. This creates a default rectangular body.
-		game.physics.p2.enable(player);
 
 		cursors = game.input.keyboard.createCursorKeys();
 
@@ -104,38 +125,30 @@ main.prototype = {
 	},
 
 	update: function () {
-		player.body.setZeroVelocity();
-
 	    if (cursors.left.isDown)
 	    {
 	    	player.body.moveLeft(400);
-	    	socket.emit('move_player', { x: player.body.x, y: player.body.y});
 	    	console.log(enemies);
 	    }
 	    else if (cursors.right.isDown)
 	    {
 	    	player.body.moveRight(400);
-	    	socket.emit('move_player', { x: player.body.x, y: player.body.y});
 	    }
 
 	    if (cursors.up.isDown)
 	    {
 	    	player.body.moveUp(400);
-	    	socket.emit('move_player', { x: player.body.x, y: player.body.y});
 	    }
 	    else if (cursors.down.isDown)
 	    {
 	    	player.body.moveDown(400);
-	    	socket.emit('move_player', { x: player.body.x, y: player.body.y});
 	    }
+	socket.emit('move_player', { 
+		x: player.body.x, 
+		y: player.body.y
+	});
 	}
 }
 
-var gameBootstrapper = {
-    init: function(gameContainerElementId){
-		game.state.add('main', main);
-		game.state.start('main'); 
-    }
-};;
-
-gameBootstrapper.init("gameDiv");
+game.state.add('main', main);
+game.state.start('main'); 

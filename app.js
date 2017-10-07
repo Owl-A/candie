@@ -102,7 +102,6 @@ io.sockets.on('connection', function(socket){
 	console.log("socket connected"); 
 	// listen for disconnection; 
 	socket.on('disconnect', onClientdisconnect); 
-	
 	// listen for new player
 	socket.on("new_player", onNewplayer);
 	// listen for player position update
