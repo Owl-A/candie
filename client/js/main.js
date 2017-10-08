@@ -6,6 +6,7 @@ game = new Phaser.Game(document.documentElement.clientWidth - 20, document.docum
 game.config.forceSetTimeOut = true;	
 var collisionGrp;
 var player;	
+var food = {};
 var enemies = [];
 
 var main = function(game){
@@ -15,6 +16,19 @@ function onsocketConnected () {
 	console.log("connected to server"); 
 	// send the server our initial position and tell it we are connected
 	socket.emit('new_player', {x: game.world.centerX, y: game.world.centerY});
+
+	socket.on('food_init',function (data) {
+		for (key in food) {
+			food[key].destroy();
+			console.log('destroyed');
+		};
+		for (key in data) {
+			food[key] = game.add.sprite(data[key].x,data[key].y,'food').scale.setTo(0.1,0.1);
+			console.log('jello');
+		}
+		console.log(food);
+	});
+
 }
 
 // When the server notifies us of client disconnection, we find the disconnected
@@ -30,7 +44,6 @@ function onRemovePlayer (data) {
 	enemies.splice(enemies.indexOf(removePlayer), 1);
 	removePlayer.play.destroy();
 }
-
 
 var remote_player = function(id, startX, startY){
 	this.x = startX;
@@ -52,6 +65,7 @@ function onNewPlayer (data) {
 	enemies.push(new_enemy);
 }
 
+// not implemented yet
 function onCollision() {
 	console.log("collides");	
 }
@@ -71,7 +85,7 @@ function onEnemyMove (data) {
 	// movePlayer.play.velocity
 }
 
-
+// obvious
 function find_Player_by_id (id){
 	for (var i = 0; i < enemies.length; i++) {
 		if (enemies[i].id == id) {
@@ -83,10 +97,11 @@ function find_Player_by_id (id){
 main.prototype = {
 	preload: function() {
 		 game.load.image('circle', '/assets/circle.png');
+		 game.load.image('food', '/assets/food.png');
 		 game.load.image('backdrop','/assets/backdrop.png');
 	},
 	create: function() {
-		game.world.setBounds(0, 0, 3000, 3000);
+		game.world.setBounds(0, 0, 3000, 3000); // bounds of the world
 		game.physics.startSystem(Phaser.Physics.P2JS);
 		game.stage.disableVisibilityChange = true;
 		game.physics.p2.setImpactEvents(true);
@@ -113,6 +128,7 @@ main.prototype = {
 		// add inbuilt follow cam
 		game.camera.follow(player, Phaser.Camera.FOLLOW_LOCKON, 1, 1);
 		console.log("client started");
+
 		socket.on("connect", onsocketConnected);
 		onsocketConnected();
 		//listen to new enemy connections

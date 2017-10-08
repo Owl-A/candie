@@ -12,11 +12,23 @@ app.get('/',function (req, res) {
 	res.sendFile(__dirname + '/client/index.html');
 })
 
+var food = {};
 serv.listen('4040', function () {
 	console.log('server initiated');
+
+	// foodie attack
+	for (var i = 0; i < 100; ++i) {
+		food[i.toString()] = { 
+			x: 3000*Math.random(),
+			y: 3000*Math.random(),
+			color: i%3 
+		};
+};
 })
 
 var playerList = [];
+
+
 
 //a player class in the server
 var Player = function (startX, startY) {
@@ -54,6 +66,7 @@ console.log(data);
 	//send message to every connected client except the sender
 	this.broadcast.emit('new_enemyPlayer', current_info);
 	
+	this.emit('food_init',food); // send state of food
 
 	playerList.push(newPlayer); 
 }
@@ -99,6 +112,7 @@ function findPlayer (id){
 io.sockets.on('connection', function(socket){
 	console.log("socket connected"); 
 	
+
 	socket.on('disconnect', onClientdisconnect); 
 	
 	socket.on("new_player", onNewplayer);
