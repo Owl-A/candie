@@ -20,13 +20,18 @@ function onsocketConnected () {
 	socket.on('food_init',function (data) {
 		for (key in food) {
 			food[key].destroy();
-			console.log('destroyed');
 		};
 		for (key in data) {
-			food[key] = game.add.sprite(data[key].x,data[key].y,'food').scale.setTo(0.1,0.1);
-			console.log('jello');
+			var col = data[key].color;
+			if (col == 0) {
+				food[key] = game.add.sprite(data[key].x,data[key].y,'rfood');
+			}else if (col == 1) {
+				food[key] = game.add.sprite(data[key].x,data[key].y,'gfood');
+			}else{
+				food[key] = game.add.sprite(data[key].x,data[key].y,'bfood');
+			}
+			food[key].scale.setTo(0.1,0.1);
 		}
-		console.log(food);
 	});
 
 }
@@ -73,8 +78,8 @@ function onCollision() {
 //Server tells us there is a new enemy movement. We find the moved enemy
 //and sync the enemy movement with the server
 function onEnemyMove (data) {
-	console.log(data.id);
-	console.log(enemies);
+	// console.log(data.id);
+	// console.log(enemies);
 	var movePlayer = find_Player_by_id(data.id); 
 	
 	if (!movePlayer) {
@@ -97,7 +102,9 @@ function find_Player_by_id (id){
 main.prototype = {
 	preload: function() {
 		 game.load.image('circle', '/assets/circle.png');
-		 game.load.image('food', '/assets/food.png');
+		 game.load.image('rfood', '/assets/rfood.png');
+		 game.load.image('gfood', '/assets/gfood.png');
+		 game.load.image('bfood', '/assets/bfood.png');
 		 game.load.image('backdrop','/assets/backdrop.png');
 	},
 	create: function() {
@@ -107,7 +114,7 @@ main.prototype = {
 		game.physics.p2.setImpactEvents(true);
 	    game.physics.p2.restitution = 1;
 	    collisionGrp = game.physics.p2.createCollisionGroup(); 
-		game.stage.backgroundColor = 0xE1A193;
+		game.stage.backgroundColor = 0xcccccc;
 		game.add.tileSprite(0,0,3000,3000,'backdrop');
 		game.physics.p2.updateBoundsCollisionGroup();
 		//  Add a sprite
@@ -144,7 +151,7 @@ main.prototype = {
 	    if (cursors.left.isDown)
 	    {
 	    	player.body.moveLeft(400);
-	    	console.log(enemies);
+	    	// console.log(enemies);
 	    }
 	    else if (cursors.right.isDown)
 	    {
