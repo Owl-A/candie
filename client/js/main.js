@@ -1,4 +1,15 @@
 
+/*
+ * messages exchanged with the server.
+ * 
+ * food_init:
+ * connect:
+ * new_player:
+ * new_enemyplayer:
+ * enemy_move:
+ * remove_player:
+ * move_player:
+ */
 var socket; 
 socket = io.connect();
 
@@ -7,7 +18,7 @@ game.config.forceSetTimeOut = true;
 var collisionGrp;
 var rfoodGrp;
 var player;	
-var food = {};
+// var food = {};
 var enemies = [];
 
 var main = function(game){
@@ -23,9 +34,7 @@ function onsocketConnected () {
 	rfood.physicsBodyType = Phaser.Physics.P2JS;
 
 	socket.on('food_init',function (data) {
-		for (key in food) {
-			food[key].destroy();
-		};
+		var id = 0;
 		for (key in data) {
 			var col = data[key].color;
 			if (col == 0) {
@@ -34,13 +43,17 @@ function onsocketConnected () {
 				temp.body.setCircle(10);
 				temp.body.setCollisionGroup(rfoodGrp);
 				temp.body.collides(collisionGrp);
-				food[key] = temp;
+				temp.scale.setTo(0.1,0.1);
+				temp.id = id++;
 			}else if (col == 1) {
-				food[key] = game.add.sprite(data[key].x,data[key].y,'gfood');
+				var temp = game.add.sprite(data[key].x,data[key].y,'gfood');
+				temp.scale.setTo(0.1,0.1);
+				temp.id = id++;
 			}else{
-				food[key] = game.add.sprite(data[key].x,data[key].y,'bfood');
+				var temp = game.add.sprite(data[key].x,data[key].y,'bfood');				
+				temp.scale.setTo(0.1,0.1);
+				temp.id = id++;
 			}
-			food[key].scale.setTo(0.1,0.1);
 		}
 	});
 
@@ -76,13 +89,21 @@ function onNewPlayer (data) {
 	new_enemy.play.anchor.set(0.5);
 	game.physics.p2.enable(new_enemy.play);
 	new_enemy.play.body.setCollisionGroup(collisionGrp);
-	new_enemy.play.body.collides([collisionGrp]);
+	new_enemy.play.body.collides(collisionGrp,onCollision,this);
+	new_enemy.play.body.collides(rfoodGrp,destroyFood,this);
+	new_enemy.play.body.damping = 0.7;
 	enemies.push(new_enemy);
 }
 
 // not implemented yet
 function onCollision() {
 	console.log("collides");	
+}
+
+function destroyFood (playr,food_particle) {
+	console.log(food_particle.id);
+	food_particle.sprite.destroy();
+	food_particle.destroy();
 }
 
 //Server tells us there is a new enemy movement. We find the moved enemy
@@ -134,9 +155,10 @@ main.prototype = {
 		player.anchor.set(0.5);
     	game.physics.p2.enable(player);
 		player.body.setCollisionGroup(collisionGrp);
-		player.body.collides([collisionGrp,rfoodGrp]);
+		// player.body.collides([collisionGrp,rfoodGrp]);
 		// under speculation
 		player.body.collides(collisionGrp,onCollision,this);
+		player.body.collides(rfoodGrp,destroyFood,this);
 		player.body.damping = 0.7;
 	    //  Enable if for physics. This creates a default rectangular body.
 
@@ -161,7 +183,7 @@ main.prototype = {
 		// player.body.accelaration.x = (-2)*player.body.velocity.x;
 		// player.body.accelaration.y = (-2)*player.body.velocity.y;
 
-		console.log(player.body.velocity.x + " " + player.body.velocity.y);
+		// console.log(player.body.velocity.x + " " + player.body.velocity.y);
 	    if (cursors.left.isDown)
 	    {
 	    	player.body.moveLeft(400);
@@ -180,6 +202,7 @@ main.prototype = {
 	    {
 	    	player.body.moveDown(400);
 	    }
+
 	socket.emit('move_player', { 
 		x: player.body.x, 
 		y: player.body.y
