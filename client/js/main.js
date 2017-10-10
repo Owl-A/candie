@@ -126,8 +126,7 @@ main.prototype = {
 		
 		// under speculation
 		player.body.collides(collisionGrp,onCollision,this);
-
-
+		player.body.damping = 0.7;
 	    //  Enable if for physics. This creates a default rectangular body.
 
 		cursors = game.input.keyboard.createCursorKeys();
@@ -148,6 +147,10 @@ main.prototype = {
 	},
 
 	update: function () {
+		// player.body.accelaration.x = (-2)*player.body.velocity.x;
+		// player.body.accelaration.y = (-2)*player.body.velocity.y;
+
+		console.log(player.body.velocity.x + " " + player.body.velocity.y);
 	    if (cursors.left.isDown)
 	    {
 	    	player.body.moveLeft(400);
