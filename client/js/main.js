@@ -5,6 +5,7 @@ socket = io.connect();
 game = new Phaser.Game(document.documentElement.clientWidth - 20, document.documentElement.clientHeight - 20, Phaser.CANVAS, 'gameDiv');
 game.config.forceSetTimeOut = true;	
 var collisionGrp;
+var rfoodGrp;
 var player;	
 var food = {};
 var enemies = [];
@@ -17,6 +18,10 @@ function onsocketConnected () {
 	// send the server our initial position and tell it we are connected
 	socket.emit('new_player', {x: game.world.centerX, y: game.world.centerY});
 
+	var rfood = game.add.group();
+	rfood.enableBody = true;
+	rfood.physicsBodyType = Phaser.Physics.P2JS;
+
 	socket.on('food_init',function (data) {
 		for (key in food) {
 			food[key].destroy();
@@ -24,7 +29,12 @@ function onsocketConnected () {
 		for (key in data) {
 			var col = data[key].color;
 			if (col == 0) {
-				food[key] = game.add.sprite(data[key].x,data[key].y,'rfood');
+				var temp = rfood.create(data[key].x,data[key].y,'rfood');
+				temp.body.kinematic = true;
+				temp.body.setCircle(10);
+				temp.body.setCollisionGroup(rfoodGrp);
+				temp.body.collides(collisionGrp);
+				food[key] = temp;
 			}else if (col == 1) {
 				food[key] = game.add.sprite(data[key].x,data[key].y,'gfood');
 			}else{
@@ -114,6 +124,8 @@ main.prototype = {
 		game.physics.p2.setImpactEvents(true);
 	    game.physics.p2.restitution = 1;
 	    collisionGrp = game.physics.p2.createCollisionGroup(); 
+		rfoodGrp = game.physics.p2.createCollisionGroup();
+
 		game.stage.backgroundColor = 0xcccccc;
 		game.add.tileSprite(0,0,3000,3000,'backdrop');
 		game.physics.p2.updateBoundsCollisionGroup();
@@ -122,8 +134,7 @@ main.prototype = {
 		player.anchor.set(0.5);
     	game.physics.p2.enable(player);
 		player.body.setCollisionGroup(collisionGrp);
-		player.body.collides([collisionGrp]);
-		
+		player.body.collides([collisionGrp,rfoodGrp]);
 		// under speculation
 		player.body.collides(collisionGrp,onCollision,this);
 		player.body.damping = 0.7;
