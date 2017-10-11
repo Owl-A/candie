@@ -2,12 +2,13 @@
 var socket; 
 socket = io.connect();
 
-game = new Phaser.Game(document.documentElement.clientWidth - 20, document.documentElement.clientHeight - 20, Phaser.CANVAS, 'gameDiv');
+game = new Phaser.Game(0.75*document.documentElement.clientWidth , document.documentElement.clientHeight - 20, Phaser.CANVAS, 'gameDiv');
 game.config.forceSetTimeOut = true;	
 var collisionGrp;
 var player;	
 var food = {};
 var enemies = [];
+var threshold = 0.1;
 
 var main = function(game){
 };
@@ -67,6 +68,7 @@ function onNewPlayer (data) {
 	game.physics.p2.enable(new_enemy.play);
 	new_enemy.play.body.setCollisionGroup(collisionGrp);
 	new_enemy.play.body.collides([collisionGrp]);
+	new_enemy.play.body.damping = 0.7;
 	enemies.push(new_enemy);
 }
 
@@ -85,8 +87,10 @@ function onEnemyMove (data) {
 	if (!movePlayer) {
 		return;
 	}
-	movePlayer.play.body.x = data.x;
-	movePlayer.play.body.y = data.y; 
+		movePlayer.play.body.x = data.x;
+
+		movePlayer.play.body.y = data.y; 
+
 	// movePlayer.play.velocity
 }
 
@@ -169,10 +173,10 @@ main.prototype = {
 	    {
 	    	player.body.moveDown(400);
 	    }
-	socket.emit('move_player', { 
-		x: player.body.x, 
-		y: player.body.y
-	});
+		socket.emit('move_player', { 
+			x: player.body.x, 
+			y: player.body.y
+		});
 	}
 }
 
