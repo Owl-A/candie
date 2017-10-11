@@ -22,8 +22,9 @@ game.config.forceSetTimeOut = true;
 var playerGrp;
 var enemyGrp;
 var rfoodGrp;
-var player;	
-var food = new Array(100); // length of the food array is 100
+var player;
+var foodnum = 100	
+var food = new Array(foodnum); // length of the food array is 100
 var enemies = [];
 
 var main = function(game){
@@ -59,7 +60,7 @@ var remote_player = function(id, startX, startY){
 
 var food_wrapper = function(id,startX,startY,group){
 	this.id = id;
-	this.food = group.create(startX, startY, 'rfood');
+	this.food = group.create(startX, startY, 'rfood'); 
 }
 
 //Server will tell us when a new enemy player connects to the server.
@@ -73,7 +74,7 @@ function onNewPlayer (data) {
 	new_enemy.play.body.setCollisionGroup(enemyGrp);
 	new_enemy.play.body.collides(enemyGrp,onCollision,this);
 	new_enemy.play.body.collides(playerGrp,onCollision,this);
-	new_enemy.play.body.collides(rfoodGrp,function (a,b) {console.log(b.id)},this);
+	new_enemy.play.body.collides(rfoodGrp,function (a,b) {console.log(b.sprite.id)},this);
 	new_enemy.play.body.damping = 0.7;
 	enemies.push(new_enemy);
 }
@@ -91,14 +92,23 @@ function onFoodUpdate (data) {
 	for (key in data) {
 		var col = data[key].color;
 		var temp;
+
+
+
+		if (key == "33") {
+			console.log(data[key].x,data[key].y);
+		};
+
+
+
 		if (col == 0) {
 			temp = new food_wrapper(key,data[key].x,data[key].y,rfood);
 			temp.food.body.kinematic = true;
 			temp.food.body.setCircle(10);
 			temp.food.body.setCollisionGroup(rfoodGrp);
 			temp.food.body.collides([playerGrp,enemyGrp]);
+			temp.food.body.sprite.id = key;
 			temp.food.scale.setTo(0.1,0.1);
-			
 		}else if (col == 1) {
 			temp = game.add.sprite(data[key].x,data[key].y,'gfood');
 			temp.scale.setTo(0.1,0.1);
@@ -107,27 +117,23 @@ function onFoodUpdate (data) {
 			temp = game.add.sprite(data[key].x,data[key].y,'bfood');				
 			temp.scale.setTo(0.1,0.1);
 		}
-		console.log(key);
+		// console.log(key);
 		food[key] = temp;
 	}		
 }
 
 function destroyFood (playr,food_particle) {
-	socket.emit('food_eaten',{ id : food_particle.id});
-	console.log('key: '+food_particle.id); // DEBUG
+	socket.emit('food_eaten',{ id : food_particle.sprite.id});
 	food_particle.sprite.destroy();
 	food_particle.destroy();
 }
 
 function onFoodDestroyed (data) {
 	console.log(food[data.id]);
-	// console.log(food[data.id].toString());
-	// food[data.id].sprite.destroy(); // Throws error
-	// food[data.id].visible = false;
 	console.log('recieved ' + data.id);
-	// food[data.id].body.sprite.destroy();
-	food[data.id].food.destroy();
-	//delete food[data.id];
+	food[data.id].food.body.sprite.destroy();
+	food[data.id].food.body.destroy();
+	delete food[data.id];
 }
 //Server tells us there is a new enemy movement. We find the moved enemy
 //and sync the enemy movement with the server

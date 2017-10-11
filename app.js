@@ -86,13 +86,10 @@ function onClientdisconnect() {
 }
 
 function onFoodEaten (data) {
-	console.log(data.id + " consumed");
+	this.broadcast.emit('food_destroyed',data);
 	delete food[data.id];
 	// let all clients know the food is gone !
-	this.broadcast.emit('food_destroyed',data);
 	// make a new food item with same id !
-	console.log( Object.keys(food).length);
-
 }
 
 //update the player position and send the information back to every client except sender
