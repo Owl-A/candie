@@ -17,7 +17,7 @@
 var socket; 
 socket = io.connect();
 
-game = new Phaser.Game(document.documentElement.clientWidth - 20, document.documentElement.clientHeight - 20, Phaser.CANVAS, 'gameDiv');
+game = new Phaser.Game(0.75*document.documentElement.clientWidth , document.documentElement.clientHeight - 20, Phaser.CANVAS, 'gameDiv');
 game.config.forceSetTimeOut = true;	
 var playerGrp;
 var enemyGrp;
@@ -26,6 +26,7 @@ var player;
 var foodnum = 100	
 var food = new Array(foodnum); // length of the food array is 100
 var enemies = [];
+var threshold = 0.1;
 
 var main = function(game){
 };
@@ -145,8 +146,10 @@ function onEnemyMove (data) {
 	if (!movePlayer) {
 		return;
 	}
-	movePlayer.play.body.x = data.x;
-	movePlayer.play.body.y = data.y; 
+		movePlayer.play.body.x = data.x;
+
+		movePlayer.play.body.y = data.y; 
+
 	// movePlayer.play.velocity
 }
 
@@ -234,7 +237,6 @@ main.prototype = {
 	    {
 	    	player.body.moveDown(400);
 	    }
-
 	socket.emit('move_player', { 
 		x: player.body.x, 
 		y: player.body.y
