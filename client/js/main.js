@@ -9,6 +9,7 @@
  * enemy_move:
  * remove_player:
  * move_player:
+ * food_eaten:
  */
 var socket; 
 socket = io.connect();
@@ -18,7 +19,7 @@ game.config.forceSetTimeOut = true;
 var collisionGrp;
 var rfoodGrp;
 var player;	
-// var food = {};
+var food = {};
 var enemies = [];
 
 var main = function(game){
@@ -28,34 +29,6 @@ function onsocketConnected () {
 	console.log("connected to server"); 
 	// send the server our initial position and tell it we are connected
 	socket.emit('new_player', {x: game.world.centerX, y: game.world.centerY});
-
-	var rfood = game.add.group();
-	rfood.enableBody = true;
-	rfood.physicsBodyType = Phaser.Physics.P2JS;
-
-	socket.on('food_init',function (data) {
-		var id = 0;
-		for (key in data) {
-			var col = data[key].color;
-			if (col == 0) {
-				var temp = rfood.create(data[key].x,data[key].y,'rfood');
-				temp.body.kinematic = true;
-				temp.body.setCircle(10);
-				temp.body.setCollisionGroup(rfoodGrp);
-				temp.body.collides(collisionGrp);
-				temp.scale.setTo(0.1,0.1);
-				temp.id = id++;
-			}else if (col == 1) {
-				var temp = game.add.sprite(data[key].x,data[key].y,'gfood');
-				temp.scale.setTo(0.1,0.1);
-				temp.id = id++;
-			}else{
-				var temp = game.add.sprite(data[key].x,data[key].y,'bfood');				
-				temp.scale.setTo(0.1,0.1);
-				temp.id = id++;
-			}
-		}
-	});
 
 }
 
@@ -100,8 +73,39 @@ function onCollision() {
 	console.log("collides");	
 }
 
+function onFoodUpdate (data) {	
+	var rfood = game.add.group();
+	rfood.enableBody = true;
+	rfood.physicsBodyType = Phaser.Physics.P2JS;
+
+	for (key in data) {
+		var col = data[key].color;
+		if (col == 0) {
+			var temp = rfood.create(data[key].x,data[key].y,'rfood');
+			temp.body.kinematic = true;
+			temp.body.setCircle(10);
+			temp.body.setCollisionGroup(rfoodGrp);
+			temp.body.collides(collisionGrp);
+			temp.scale.setTo(0.1,0.1);
+			temp.id = key;
+			food[key] = temp;
+		}else if (col == 1) {
+			var temp = game.add.sprite(data[key].x,data[key].y,'gfood');
+			temp.scale.setTo(0.1,0.1);
+			temp.id = key;
+			food[key] = temp;
+		}else{
+			var temp = game.add.sprite(data[key].x,data[key].y,'bfood');				
+			temp.scale.setTo(0.1,0.1);
+			temp.id = key;
+			food[key] = temp;
+		}
+	}		
+}
+
 function destroyFood (playr,food_particle) {
-	console.log(food_particle.id);
+	socket.emit('food_eaten',{ id : food_particle.id});
+	console.log('key: '+food_particle.id); // DEBUG
 	food_particle.sprite.destroy();
 	food_particle.destroy();
 }
@@ -121,7 +125,6 @@ function onEnemyMove (data) {
 	// movePlayer.play.velocity
 }
 
-// obvious
 function find_Player_by_id (id){
 	for (var i = 0; i < enemies.length; i++) {
 		if (enemies[i].id == id) {
@@ -171,12 +174,15 @@ main.prototype = {
 		socket.on("connect", onsocketConnected);
 		onsocketConnected();
 		//listen to new enemy connections
+		
+		socket.on('food_update',onFoodUpdate);
 		socket.on("new_enemyPlayer", onNewPlayer);
 		//listen to enemy movement 
 		socket.on("enemy_move", onEnemyMove);
 		
 		// when received remove_player, remove the player passed; 
-		socket.on('remove_player', onRemovePlayer); 
+		socket.on('remove_player', onRemovePlayer);
+
 	},
 
 	update: function () {

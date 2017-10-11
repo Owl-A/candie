@@ -66,7 +66,7 @@ console.log(data);
 	//send message to every connected client except the sender
 	this.broadcast.emit('new_enemyPlayer', current_info);
 	
-	this.emit('food_init',food); // send state of food
+	this.emit('food_update',food); // send state of food
 
 	playerList.push(newPlayer); 
 }
@@ -83,6 +83,15 @@ function onClientdisconnect() {
 	
 	//send message to every connected client except the sender
 	this.broadcast.emit('remove_player', {id: this.id});
+}
+
+function onFoodEaten (data) {
+	console.log(data.id + " consumed");
+	delete food[data.id];
+	// let all clients know the food is gone !
+	// make a new food item with same id !
+	console.log( Object.keys(food).length);
+
 }
 
 //update the player position and send the information back to every client except sender
@@ -118,4 +127,6 @@ io.sockets.on('connection', function(socket){
 	socket.on("new_player", onNewplayer);
 	
 	socket.on("move_player", onMovePlayer);
+
+	socket.on("food_eaten",onFoodEaten);
 });
