@@ -67,8 +67,6 @@ var food_wrapper = function(id,startX,startY,group){
 //Server will tell us when a new enemy player connects to the server.
 //We create a new enemy in our game.
 function onNewPlayer (data) {
-	console.log(data);
-	//enemy object 
 	var new_enemy = new remote_player(data.id, data.x, data.y); 
 	new_enemy.play.anchor.set(0.5);
 	game.physics.p2.enable(new_enemy.play);
@@ -93,14 +91,6 @@ function onFoodUpdate (data) {
 	for (key in data) {
 		var col = data[key].color;
 		var temp;
-
-
-
-		if (key == "33") {
-			console.log(data[key].x,data[key].y);
-		};
-
-
 
 		if (col == 0) {
 			temp = new food_wrapper(key,data[key].x,data[key].y,rfood);
@@ -139,18 +129,13 @@ function onFoodDestroyed (data) {
 //Server tells us there is a new enemy movement. We find the moved enemy
 //and sync the enemy movement with the server
 function onEnemyMove (data) {
-	// console.log(data.id);
-	// console.log(enemies);
 	var movePlayer = find_Player_by_id(data.id); 
 	
 	if (!movePlayer) {
 		return;
 	}
 		movePlayer.play.body.x = data.x;
-
 		movePlayer.play.body.y = data.y; 
-
-	// movePlayer.play.velocity
 }
 
 function find_Player_by_id (id){
