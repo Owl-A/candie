@@ -79,8 +79,11 @@ function onNewPlayer (data) {
 }
 
 // not implemented yet
-function onCollision() {
-	console.log("collides");	
+//we can get sizes of collided bodies this way, but still need to see how exactly to 'respawn' player after death
+function onCollision(body1, body2) {
+	console.log("collides");
+	// console.log("height of body1: ");
+	// console.log(body1.sprite.height);
 }
 
 function onFoodUpdate (data) {	
