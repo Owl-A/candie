@@ -13,17 +13,17 @@ app.get('/',function (req, res) {
 })
 
 var food = {};
+
+// foodie attack
+for (var i = 0; i < 100; ++i) {
+	food[i.toString()] = { 
+		x: 3000*Math.random(),
+		y: 3000*Math.random(),
+		color: i%3 
+	};
+};
 serv.listen('4040', function () {
 	console.log('server initiated');
-
-	// foodie attack
-	for (var i = 0; i < 100; ++i) {
-		food[i.toString()] = { 
-			x: 3000*Math.random(),
-			y: 3000*Math.random(),
-			color: i%3 
-		};
-};
 })
 
 var playerList = [];
@@ -89,6 +89,7 @@ function onFoodEaten (data) {
 	console.log(data.id + " consumed");
 	delete food[data.id];
 	// let all clients know the food is gone !
+	this.broadcast.emit('food_destroyed',data);
 	// make a new food item with same id !
 	console.log( Object.keys(food).length);
 

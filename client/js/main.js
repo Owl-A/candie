@@ -10,16 +10,20 @@
  * remove_player:
  * move_player:
  * food_eaten:
+ *
+ *
+ * // TODO ; debug foodupdate and onfoodDestroyed
  */
 var socket; 
 socket = io.connect();
 
 game = new Phaser.Game(document.documentElement.clientWidth - 20, document.documentElement.clientHeight - 20, Phaser.CANVAS, 'gameDiv');
 game.config.forceSetTimeOut = true;	
-var collisionGrp;
+var playerGrp;
+var enemyGrp;
 var rfoodGrp;
 var player;	
-var food = {};
+var food = new Array(100); // length of the food array is 100
 var enemies = [];
 
 var main = function(game){
@@ -53,6 +57,11 @@ var remote_player = function(id, startX, startY){
 	this.play = game.add.sprite(startX, startY, 'circle');
 }
 
+var food_wrapper = function(id,startX,startY,group){
+	this.id = id;
+	this.food = group.create(startX, startY, 'rfood');
+}
+
 //Server will tell us when a new enemy player connects to the server.
 //We create a new enemy in our game.
 function onNewPlayer (data) {
@@ -61,9 +70,10 @@ function onNewPlayer (data) {
 	var new_enemy = new remote_player(data.id, data.x, data.y); 
 	new_enemy.play.anchor.set(0.5);
 	game.physics.p2.enable(new_enemy.play);
-	new_enemy.play.body.setCollisionGroup(collisionGrp);
-	new_enemy.play.body.collides(collisionGrp,onCollision,this);
-	new_enemy.play.body.collides(rfoodGrp,destroyFood,this);
+	new_enemy.play.body.setCollisionGroup(enemyGrp);
+	new_enemy.play.body.collides(enemyGrp,onCollision,this);
+	new_enemy.play.body.collides(playerGrp,onCollision,this);
+	new_enemy.play.body.collides(rfoodGrp,function (a,b) {console.log(b.id)},this);
 	new_enemy.play.body.damping = 0.7;
 	enemies.push(new_enemy);
 }
@@ -80,26 +90,25 @@ function onFoodUpdate (data) {
 
 	for (key in data) {
 		var col = data[key].color;
+		var temp;
 		if (col == 0) {
-			var temp = rfood.create(data[key].x,data[key].y,'rfood');
-			temp.body.kinematic = true;
-			temp.body.setCircle(10);
-			temp.body.setCollisionGroup(rfoodGrp);
-			temp.body.collides(collisionGrp);
-			temp.scale.setTo(0.1,0.1);
-			temp.id = key;
-			food[key] = temp;
+			temp = new food_wrapper(key,data[key].x,data[key].y,rfood);
+			temp.food.body.kinematic = true;
+			temp.food.body.setCircle(10);
+			temp.food.body.setCollisionGroup(rfoodGrp);
+			temp.food.body.collides([playerGrp,enemyGrp]);
+			temp.food.scale.setTo(0.1,0.1);
+			
 		}else if (col == 1) {
-			var temp = game.add.sprite(data[key].x,data[key].y,'gfood');
+			temp = game.add.sprite(data[key].x,data[key].y,'gfood');
 			temp.scale.setTo(0.1,0.1);
-			temp.id = key;
-			food[key] = temp;
+			
 		}else{
-			var temp = game.add.sprite(data[key].x,data[key].y,'bfood');				
+			temp = game.add.sprite(data[key].x,data[key].y,'bfood');				
 			temp.scale.setTo(0.1,0.1);
-			temp.id = key;
-			food[key] = temp;
 		}
+		console.log(key);
+		food[key] = temp;
 	}		
 }
 
@@ -110,6 +119,16 @@ function destroyFood (playr,food_particle) {
 	food_particle.destroy();
 }
 
+function onFoodDestroyed (data) {
+	console.log(food[data.id]);
+	// console.log(food[data.id].toString());
+	// food[data.id].sprite.destroy(); // Throws error
+	// food[data.id].visible = false;
+	console.log('recieved ' + data.id);
+	// food[data.id].body.sprite.destroy();
+	food[data.id].food.destroy();
+	//delete food[data.id];
+}
 //Server tells us there is a new enemy movement. We find the moved enemy
 //and sync the enemy movement with the server
 function onEnemyMove (data) {
@@ -147,7 +166,8 @@ main.prototype = {
 		game.stage.disableVisibilityChange = true;
 		game.physics.p2.setImpactEvents(true);
 	    game.physics.p2.restitution = 1;
-	    collisionGrp = game.physics.p2.createCollisionGroup(); 
+	    playerGrp = game.physics.p2.createCollisionGroup(); 
+		enemyGrp = game.physics.p2.createCollisionGroup(); 
 		rfoodGrp = game.physics.p2.createCollisionGroup();
 
 		game.stage.backgroundColor = 0xcccccc;
@@ -157,10 +177,8 @@ main.prototype = {
 		player = game.add.sprite(game.world.centerX, game.world.centerY	, 'circle');
 		player.anchor.set(0.5);
     	game.physics.p2.enable(player);
-		player.body.setCollisionGroup(collisionGrp);
-		// player.body.collides([collisionGrp,rfoodGrp]);
-		// under speculation
-		player.body.collides(collisionGrp,onCollision,this);
+		player.body.setCollisionGroup(playerGrp);
+		player.body.collides(enemyGrp,onCollision,this);
 		player.body.collides(rfoodGrp,destroyFood,this);
 		player.body.damping = 0.7;
 	    //  Enable if for physics. This creates a default rectangular body.
@@ -182,6 +200,8 @@ main.prototype = {
 		
 		// when received remove_player, remove the player passed; 
 		socket.on('remove_player', onRemovePlayer);
+
+		socket.on('food_destroyed', onFoodDestroyed);
 
 	},
 
