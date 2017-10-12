@@ -37,7 +37,7 @@ var Player = function (startX, startY) {
 }
 
 function onNewplayer (data) {
-	console.log(data);
+console.log(data);
 	//new player instance
 	var newPlayer = new Player(data.x, data.y);
 	
