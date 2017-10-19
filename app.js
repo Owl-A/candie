@@ -87,7 +87,15 @@ function onClientdisconnect() {
 
 function onFoodEaten (data) {
 	this.broadcast.emit('food_destroyed',data);
-	delete food[data.id];
+	food[data.id].x = 3000*Math.random();
+	food[data.id].y = 3000*Math.random();
+
+	temp = {};
+	temp[data.id] = food[data.id];
+
+	this.broadcast.emit('food_update',temp);
+	this.emit('food_update',temp);
+	
 	// let all clients know the food is gone !
 	// make a new food item with same id !
 }

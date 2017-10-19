@@ -1,4 +1,3 @@
-
 /*
  * messages exchanged with the server.
  * 
@@ -17,7 +16,7 @@
 var socket; 
 socket = io.connect();
 
-game = new Phaser.Game(0.75*document.documentElement.clientWidth , document.documentElement.clientHeight - 20, Phaser.CANVAS, 'gameDiv');
+game = new Phaser.Game(document.documentElement.clientWidth , document.documentElement.clientHeight - 20, Phaser.CANVAS, 'gameDiv');
 game.config.forceSetTimeOut = true;	
 var playerGrp;
 var enemyGrp;
@@ -83,10 +82,14 @@ function onCollision() {
 	console.log("collides");	
 }
 
+
 function onFoodUpdate (data) {	
 	var rfood = game.add.group();
 	rfood.enableBody = true;
 	rfood.physicsBodyType = Phaser.Physics.P2JS;
+
+	console.log(data);
+
 
 	for (key in data) {
 		var col = data[key].color;
@@ -115,6 +118,7 @@ function onFoodUpdate (data) {
 
 function destroyFood (playr,food_particle) {
 	socket.emit('food_eaten',{ id : food_particle.sprite.id});
+
 	food_particle.sprite.destroy();
 	food_particle.destroy();
 }
@@ -126,6 +130,7 @@ function onFoodDestroyed (data) {
 	food[data.id].food.body.destroy();
 	delete food[data.id];
 }
+
 //Server tells us there is a new enemy movement. We find the moved enemy
 //and sync the enemy movement with the server
 function onEnemyMove (data) {
