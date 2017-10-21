@@ -35,7 +35,7 @@ function onsocketConnected () {
 	console.log("connected to server"); 
 	// send the server our initial position and tell it we are connected
 	socket.emit('new_player', {x: game.world.centerX, y: game.world.centerY});
-
+	player.body.sprite.id = socket.id; // try !!
 }
 
 // When the server notifies us of client disconnection, we find the disconnected
@@ -76,8 +76,9 @@ function onNewPlayer (data) {
 	var new_enemy = new remote_player(data.id, data.x, data.y); 
 	new_enemy.play.anchor.set(0.5);
 
-	new_enemy.play.frame = 0; 	
-	new_enemy.play.type = 'red'  // PLayer properties, needed in collision callbacks.
+	console.log(data.color);
+	new_enemy.play.frame = data.color; 	
+	new_enemy.play.type = data.color;  // PLayer properties, needed in collision callbacks.
 	
 	game.physics.p2.enable(new_enemy.play);
 	new_enemy.play.body.setCollisionGroup(enemyGrp);
@@ -115,24 +116,26 @@ function onFoodUpdate (data) {
 	}		
 }
 
-
-// HIGHLIGHT
-
 // color change happens here !!!!!
 // need to plan out a color sync !!!!
 
 function destroyFood (playr,food_particle) {
-	socket.emit('food_eaten',{ id : food_particle.sprite.id});
-	// console.log(playr.body.sprite.frame);
+	socket.emit('food_eaten',{ id : food_particle.sprite.id , Pid : playr.sprite.id}); // test
+	// console.log(playr.body.sprite.frame);	
 	playr.sprite.frame = food_particle.sprite.color;
+	playr.sprite.type = food_particle.sprite.color;
 	food_particle.sprite.destroy();
 	food_particle.destroy();
 }
 
-
-// HIGHLIGHT
-
-
+function onColorChange(data){
+	for (id in data){
+		change_player = find_Player_by_id(id);
+		change_player.play.body.sprite.frame = data[id];
+		change_player.play.body.sprite.color = data[id];
+		console.log("change " + id + " to color " + data.id );
+	}
+}
 
 function onFoodDestroyed (data) {
 	console.log(food[data.id]);
@@ -187,7 +190,7 @@ main.prototype = {
 		player = game.add.sprite(game.world.centerX, game.world.centerY	, 'circle');
 		
 		player.frame = 0; 	
-		player.type = 'red'  // PLayer properties, needed in collision callbacks. 
+		player.type = 0;  // PLayer properties, needed in collision callbacks. 
 
 		player.anchor.set(0.5);
     	game.physics.p2.enable(player);
@@ -212,6 +215,7 @@ main.prototype = {
 		//listen to new enemy connections
 		
 		socket.on('food_update',onFoodUpdate);
+		socket.on('change_color',onColorChange);
 		socket.on("new_enemyPlayer", onNewPlayer);
 		//listen to enemy movement 
 		socket.on("enemy_move", onEnemyMove);

@@ -31,9 +31,10 @@ var playerList = [];
 
 
 //a player class in the server
-var Player = function (startX, startY) {
+var Player = function (startX, startY, init_color) {
   this.x = startX;
   this.y = startY;
+  this.color = init_color;
 }
 
 function onNewplayer (data) {
@@ -47,7 +48,8 @@ console.log(data);
 	var current_info = {
 		id: newPlayer.id, 
 		x: newPlayer.x,
-		y: newPlayer.y
+		y: newPlayer.y,
+		color: 0
 	}; 
 	
 	//send to the new player about everyone who is already connected. 	
@@ -57,6 +59,7 @@ console.log(data);
 			id: existingPlayer.id,
 			x: existingPlayer.x,
 			y: existingPlayer.y, 
+			color: existingPlayer.color
 		};
 		console.log("pushing player");
 		//send message to the sender-client only
@@ -90,9 +93,17 @@ function onFoodEaten (data) {
 	food[data.id].x = 3000*Math.random();
 	food[data.id].y = 3000*Math.random();
 
+	console.log(data.Pid + " ate " + data.id );
+
 	temp = {};
 	temp[data.id] = food[data.id];
 
+	temp_play  = {};
+	temp_play[data.Pid] = food[data.id].color;
+
+	findPlayer(data.Pid).color = food[data.id].color;
+
+	this.broadcast.emit('change_color',temp_play);
 	this.broadcast.emit('food_update',temp);
 	this.emit('food_update',temp);
 	
