@@ -26,6 +26,7 @@ var foodnum = 100
 var food = new Array(foodnum); // length of the food array is 100
 var enemies = [];
 var threshold = 0.1;
+var rfood;
 
 var main = function(game){
 };
@@ -58,9 +59,15 @@ var remote_player = function(id, startX, startY){
 	this.play = game.add.sprite(startX, startY, 'circle');
 }
 
-var food_wrapper = function(id,startX,startY,group){
+var food_wrapper = function(id,startX,startY,group,type){
 	this.id = id;
-	this.food = group.create(startX, startY, 'rfood'); 
+	if(type == 0){
+		this.food = group.create(startX, startY, 'rfood');
+	}else if (type == 1) {
+		this.food = group.create(startX, startY, 'bfood');
+	}else{
+		this.food = group.create(startX, startY, 'gfood');
+	} 
 }
 
 //Server will tell us when a new enemy player connects to the server.
@@ -68,60 +75,64 @@ var food_wrapper = function(id,startX,startY,group){
 function onNewPlayer (data) {
 	var new_enemy = new remote_player(data.id, data.x, data.y); 
 	new_enemy.play.anchor.set(0.5);
+
+	new_enemy.play.frame = 0; 	
+	new_enemy.play.type = 'red'  // PLayer properties, needed in collision callbacks.
+	
 	game.physics.p2.enable(new_enemy.play);
 	new_enemy.play.body.setCollisionGroup(enemyGrp);
 	new_enemy.play.body.collides(enemyGrp,onCollision,this);
 	new_enemy.play.body.collides(playerGrp,onCollision,this);
 	new_enemy.play.body.collides(rfoodGrp,function (a,b) {console.log(b.sprite.id)},this);
 	new_enemy.play.body.damping = 0.7;
+	new_enemy.play.body.sprite.id = data.id;
 	enemies.push(new_enemy);
 }
 
-// not implemented yet
-function onCollision() {
-	console.log("collides");	
+
+// tomorrow's work !
+function onCollision(me, enemy) {
+	console.log("collides");
+	console.log("I collide With : "+ enemy.sprite.id);	
 }
 
 
 function onFoodUpdate (data) {	
-	var rfood = game.add.group();
-	rfood.enableBody = true;
-	rfood.physicsBodyType = Phaser.Physics.P2JS;
-
-	console.log(data);
-
 
 	for (key in data) {
 		var col = data[key].color;
 		var temp;
 
-		if (col == 0) {
-			temp = new food_wrapper(key,data[key].x,data[key].y,rfood);
-			temp.food.body.kinematic = true;
-			temp.food.body.setCircle(10);
-			temp.food.body.setCollisionGroup(rfoodGrp);
-			temp.food.body.collides([playerGrp,enemyGrp]);
-			temp.food.body.sprite.id = key;
-			temp.food.scale.setTo(0.1,0.1);
-		}else if (col == 1) {
-			temp = game.add.sprite(data[key].x,data[key].y,'gfood');
-			temp.scale.setTo(0.1,0.1);
-			
-		}else{
-			temp = game.add.sprite(data[key].x,data[key].y,'bfood');				
-			temp.scale.setTo(0.1,0.1);
-		}
-		// console.log(key);
+		temp = new food_wrapper(key,data[key].x,data[key].y,rfood,col);
+		temp.food.body.kinematic = true;
+		temp.food.body.setCircle(10);
+		temp.food.body.setCollisionGroup(rfoodGrp);
+		temp.food.body.collides([playerGrp,enemyGrp]);
+		temp.food.body.sprite.id = key;
+		temp.food.scale.setTo(0.1,0.1);
+		temp.food.body.sprite.color = col;
 		food[key] = temp;
 	}		
 }
 
+
+// HIGHLIGHT
+
+// color change happens here !!!!!
+// need to plan out a color sync !!!!
+
 function destroyFood (playr,food_particle) {
 	socket.emit('food_eaten',{ id : food_particle.sprite.id});
-
+	// console.log(playr.body.sprite.frame);
+	playr.sprite.frame = food_particle.sprite.color;
 	food_particle.sprite.destroy();
 	food_particle.destroy();
 }
+
+
+// HIGHLIGHT
+
+
 
 function onFoodDestroyed (data) {
 	console.log(food[data.id]);
@@ -153,7 +164,7 @@ function find_Player_by_id (id){
 
 main.prototype = {
 	preload: function() {
-		 game.load.image('circle', '/assets/circle.png');
+		 game.load.spritesheet('circle', '/assets/ballsf.png',81,81,3);
 		 game.load.image('rfood', '/assets/rfood.png');
 		 game.load.image('gfood', '/assets/gfood.png');
 		 game.load.image('bfood', '/assets/bfood.png');
@@ -174,6 +185,10 @@ main.prototype = {
 		game.physics.p2.updateBoundsCollisionGroup();
 		//  Add a sprite
 		player = game.add.sprite(game.world.centerX, game.world.centerY	, 'circle');
+		
+		player.frame = 0; 	
+		player.type = 'red'  // PLayer properties, needed in collision callbacks. 
+
 		player.anchor.set(0.5);
     	game.physics.p2.enable(player);
 		player.body.setCollisionGroup(playerGrp);
@@ -181,6 +196,10 @@ main.prototype = {
 		player.body.collides(rfoodGrp,destroyFood,this);
 		player.body.damping = 0.7;
 	    //  Enable if for physics. This creates a default rectangular body.
+
+		rfood = game.add.group();
+		rfood.enableBody = true;
+		rfood.physicsBodyType = Phaser.Physics.P2JS;
 
 		cursors = game.input.keyboard.createCursorKeys();
 
