@@ -91,9 +91,13 @@ function onNewPlayer (data) {
 
 
 // tomorrow's work !
+// death trigger !
 function onCollision(me, enemy) {
 	console.log(me.sprite.frame);
 	console.log(enemy.sprite.frame);	
+	if ((me.sprite.frame + 1)%3 == enemy.sprite.frame) {
+		console.log("ded, yu ded nibba");
+	};
 }
 
 
