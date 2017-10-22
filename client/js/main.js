@@ -82,8 +82,7 @@ function onNewPlayer (data) {
 	
 	game.physics.p2.enable(new_enemy.play);
 	new_enemy.play.body.setCollisionGroup(enemyGrp);
-	new_enemy.play.body.collides(enemyGrp,onCollision,this);
-	new_enemy.play.body.collides(playerGrp,onCollision,this);
+	new_enemy.play.body.collides([enemyGrp,playerGrp]);
 	new_enemy.play.body.collides(rfoodGrp,function (a,b) {console.log(b.sprite.id)},this);
 	new_enemy.play.body.damping = 0.7;
 	new_enemy.play.body.sprite.id = data.id;
@@ -93,8 +92,8 @@ function onNewPlayer (data) {
 
 // tomorrow's work !
 function onCollision(me, enemy) {
-	console.log("collides");
-	console.log("I collide With : "+ enemy.sprite.id);	
+	console.log(me.sprite.frame);
+	console.log(enemy.sprite.frame);	
 }
 
 
@@ -133,7 +132,7 @@ function onColorChange(data){
 		change_player = find_Player_by_id(id);
 		change_player.play.body.sprite.frame = data[id];
 		change_player.play.body.sprite.color = data[id];
-		console.log("change " + id + " to color " + data.id );
+		console.log("change " + id + " to color " + data[id] );
 	}
 }
 

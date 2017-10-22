@@ -40,7 +40,7 @@ var Player = function (startX, startY, init_color) {
 function onNewplayer (data) {
 console.log(data);
 	//new player instance
-	var newPlayer = new Player(data.x, data.y);
+	var newPlayer = new Player(data.x, data.y, 0);
 	
 	console.log("created new player with id " + this.id);
 	newPlayer.id = this.id; 	
