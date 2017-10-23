@@ -13,11 +13,7 @@
  *
  * // TODO ; debug foodupdate and onfoodDestroyed
  */
-var socket; 
-socket = io.connect();
-
-game = new Phaser.Game(document.documentElement.clientWidth , document.documentElement.clientHeight - 20, Phaser.CANVAS, 'gameDiv');
-game.config.forceSetTimeOut = true;	
+//game.config.forceSetTimeOut = true;	
 var playerGrp;
 var enemyGrp;
 var rfoodGrp;
@@ -169,14 +165,15 @@ function find_Player_by_id (id){
 }
 
 main.prototype = {
-	preload: function() {
-		 game.load.spritesheet('circle', '/assets/ballsf.png',81,81,3);
-		 game.load.image('rfood', '/assets/rfood.png');
-		 game.load.image('gfood', '/assets/gfood.png');
-		 game.load.image('bfood', '/assets/bfood.png');
-		 game.load.image('backdrop','/assets/backdrop.png');
-	},
+	// preload: function() {
+	// 	 game.load.spritesheet('circle', '/assets/ballsf.png',81,81,3);
+	// 	 game.load.image('rfood', '/assets/rfood.png');
+	// 	 game.load.image('gfood', '/assets/gfood.png');
+	// 	 game.load.image('bfood', '/assets/bfood.png');
+	// 	 game.load.image('backdrop','/assets/backdrop.png');
+	// },
 	create: function() {
+		this.state.start('Startup');
 		game.world.setBounds(0, 0, 3000, 3000); // bounds of the world
 		game.physics.startSystem(Phaser.Physics.P2JS);
 		game.stage.disableVisibilityChange = true;
@@ -260,5 +257,3 @@ main.prototype = {
 	}
 }
 
-game.state.add('main', main);
-game.state.start('main'); 
