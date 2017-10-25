@@ -135,10 +135,6 @@ function findPlayer (id){
 	}
 }
 
-
-
-
-
 function onKill (data) {
 	var removePlayer = findPlayer(data.id);
 	
@@ -148,11 +144,8 @@ function onKill (data) {
 	
 	console.log("removing player " + data.id);
 	this.broadcast.emit('remove_player', {id: data.id});
+	this.emit('remove_player', {id: data.id});
 }
-
-
-
-
 
 io.sockets.on('connection', function(socket){
 	console.log("socket connected"); 

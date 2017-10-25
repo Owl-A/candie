@@ -90,33 +90,11 @@ function onNewPlayer (data) {
 	enemies.push(new_enemy);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 // tomorrow's work !
 // death trigger !
 function onCollision(me, enemy) {
 	if ((me.sprite.frame + 1)%3 == enemy.sprite.frame) {
-		var removePlayer = find_Player_by_id(enemy.sprite.id);
-		var temp_ind = enemies.indexOf(removePlayer);
-		var temp_id = removePlayer.id;
-   		console.log(removePlayer);
-		console.log(enemy.sprite.id);
-		// console.log(removePlayer.play.sprite.id);
-		removePlayer.play.destroy();
-		enemies.splice(temp_ind, 1);
-		socket.emit('kill', { id : temp_id});
-		// enemy.sprite.destroy();
+		socket.emit('kill', { id : enemy.sprite.id});
 	};
 }
 
@@ -124,38 +102,20 @@ function onDeath () {
 	for (var i = 0; i < enemies.length; i++) {
 			 enemies[i].play.destroy();
 	}		
-	// for (var i = 0; i < foodnum; i++) {
-	// 	food[i].food.body.sprite.destroy();
-	// 	food[i].food.body.destroy();
-	// 	delete food[i];
-	// }	
+	for (var i = 0; i < foodnum; i++) {
+		if (i in food) {
+			food[i].food.body.sprite.destroy();
+			if (food[i].food.body) {food[i].food.body.destroy()};
+			delete food[i];
+		}
+	}	
 	enemies = [];
 	player.body.sprite.destroy();
 	game.state.start('start');
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function onFoodUpdate (data) {	
-
+	console.log(data);
 	for (key in data) {
 		var col = data[key].color;
 		var temp;
@@ -197,7 +157,9 @@ function onFoodDestroyed (data) {
 	console.log(food[data.id]);
 	console.log('recieved ' + data.id);
 	food[data.id].food.body.sprite.destroy();
-	food[data.id].food.body.destroy();
+	if(food[data.id].food.body) {
+		food[data.id].food.body.destroy();
+	}
 	delete food[data.id];
 }
 

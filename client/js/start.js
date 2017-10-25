@@ -12,7 +12,7 @@ start.prototype = {
 		 game.load.image('rfood', '/assets/rfood.png');
 		 game.load.image('gfood', '/assets/gfood.png');
 		 game.load.image('bfood', '/assets/bfood.png');
-		game.load.image('backdrop','/assets/backdrop.png');
+		 game.load.image('backdrop','/assets/backdrop.png');
 	},
 
 	create: function() {
@@ -22,6 +22,8 @@ start.prototype = {
 		game.stage.disableVisibilityChange = true;
 		game.physics.p2.setImpactEvents(true);
 		game.physics.p2.restitution = 1;
+		if (socket) {socket.close()};
+		socket = io.connect();
 
 		game.stage.backgroundColor = 0xc0aeef;
 		game.add.tileSprite(0,0,3000,3000,'backdrop');
