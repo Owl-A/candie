@@ -37,13 +37,18 @@ start.prototype = {
 		    borderColor: '#000',
 		    borderRadius: 10,
 		    placeHolder: 'Enter Your Name',
+
 		    type: PhaserInput.InputType.text
 		});
-
+		Name.focusOutOnEnter = true;
+		//Name.OnEnter = this.star();
+		Name.startFocus();
 	},
 
 	star: function(){
-		Name = Name.value;
+		X = Name.value;
+		Name.endFocus();
+		Name = X;
 		game.state.start('main');
 	}
 };
