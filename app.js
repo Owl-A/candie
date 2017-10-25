@@ -27,8 +27,7 @@ serv.listen('4040', function () {
 })
 
 var playerList = [];
-
-
+var leaderBoard = [];
 
 //a player class in the server
 var Player = function (startX, startY, init_color, name, score) {
@@ -42,7 +41,7 @@ var Player = function (startX, startY, init_color, name, score) {
 function onNewplayer (data) {
 console.log(data);
 	//new player instance
-	var newPlayer = new Player(data.x, data.y, 0, data.name);
+	var newPlayer = new Player(data.x, data.y, 0, data.name, 0);
 	
 	console.log("created new player with id " + this.id);
 	newPlayer.id = this.id; 	
@@ -66,10 +65,16 @@ console.log(data);
 			name: existingPlayer.name
 		};
 		console.log("pushing player");
+
 		//send message to the sender-client only
 		this.emit("new_enemyPlayer", player_info);
 	}
 	
+	if (leaderBoard.length < 5) {leaderBoard.push({
+		id : newPlayer.id,
+		name : newPlayer.name,
+		score : 0
+	})};
 	//send message to every connected client except the sender
 	this.broadcast.emit('new_enemyPlayer', current_info);
 	
@@ -85,7 +90,11 @@ function onClientdisconnect() {
 	if (removePlayer) {
 		playerList.splice(playerList.indexOf(removePlayer), 1);
 	}
-	
+
+	for (var i = 0; i < leaderBoard.length; i++) {
+		if (leaderBoard[i].id == this.id) leaderBoard.splice(i,1);
+	}
+
 	console.log("removing player " + this.id);
 	
 	//send message to every connected client except the sender
@@ -139,13 +148,40 @@ function findPlayer (id){
 	}
 }
 
+function update_board (data) {
+	for (var i = 0; i < leaderBoard.length; i++) {
+		if (leaderBoard[i].id == data.id) leaderBoard.splice(i,1);
+	};
+	var i;
+	for ( i = 0; i < leaderBoard.length; i++) {
+		if (leaderBoard[i].score <= data.score) {
+			leaderBoard.splice(i,0,{ 
+					id : data.id,
+					name : data.name,
+					score : data.score
+				});
+			// send board
+			return;
+		}
+	}
+	if (i < 5) {		
+		leaderBoard.push({ 
+			id : data.id,
+			name : data.name,
+			score : data.score
+		});
+	}
+	// send board 
+
+}	
+
 function onKill (data) {
 	var removePlayer = findPlayer(data.id);
-	
+	var scoredBy = findPlayer(this.id);
 	if (removePlayer) {
-		console.log("removing player " + removePlayer.id);
-		playerList.splice(playerList.indexOf(removePlayer), 1);
-		console.log(this.id);			
+		scoredBy.score += 10;
+		update_board(scoredBy);
+		console.log(leaderBoard);
 	}
 	
 	this.broadcast.emit('remove_player', {id: data.id});
