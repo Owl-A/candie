@@ -11,6 +11,7 @@ start.prototype = {
 		 game.load.image('bfood', '/assets/bfood.png');
 		 game.load.image('backdrop','/assets/backdrop.png');
 		 game.load.spritesheet('intro','/assets/intro_sheet.png',547,472,3);
+		 game.load.image('round-rect','/assets/rect.png');
 	},
 
 	create: function() {

@@ -2,7 +2,7 @@
 
 var socket; 
 
-game = new Phaser.Game(document.documentElement.clientWidth , document.documentElement.clientHeight - 20, Phaser.CANVAS, 'gameDiv');
+game = new Phaser.Game(document.documentElement.clientWidth - 20 , document.documentElement.clientHeight - 20, Phaser.CANVAS, 'gameDiv');
 
 game.config.forceSetTimeOut = true;
 
