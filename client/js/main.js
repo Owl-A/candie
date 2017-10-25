@@ -26,6 +26,7 @@ var rfood;
 var widthT = 200;
 var textChat = [];
 var leaderboard = [];
+var textscore;
 
 var main = function(game){
 };
@@ -35,6 +36,7 @@ function onsocketConnected () {
 	// send the server our initial position and tell it we are connected
 	socket.emit('new_player', {x: game.world.centerX, y: game.world.centerY, name: Name});
 	player.body.sprite.id = socket.id; // try !!
+	//onBoardUpdate(leaderBoard);
 }
 
 // When the server notifies us of client disconnection, we find the disconnected
@@ -190,6 +192,13 @@ function find_Player_by_id (id){
 function onBoardUpdate (data) {
 	leaderBoard = data;
 	console.log(leaderBoard);
+	var l = leaderBoard.length;
+	for(var i=0;i<l;i++){
+		leaderboard[i].setText(data[i].name + " - " + data[i].score);
+	}
+	for(var i =l;i<5;i++){
+		leaderboard[i].setText("");
+	}
 }
 
 main.prototype = {
@@ -226,7 +235,6 @@ main.prototype = {
 		player.body.collides(enemyGrp,onCollision,this);
 		player.body.collides(rfoodGrp,destroyFood,this);
 		player.body.damping = 0.7;
-		player.score = 0;
 	    //  Enable if for physics. This creates a default rectangular body.
 
 		rfood = game.add.group();
@@ -261,13 +269,20 @@ main.prototype = {
 		}
 
 		for(var i = 1; i<6;i++){
-			temptext = game.add.text(document.documentElement.clientWidth - widthT - 10, 45*i, 'dfg', { 
+			temptext = game.add.text(document.documentElement.clientWidth - widthT - 10, 45*i, '', { 
 				font: "15px Courier",
 				fill: "#19cb65",
 			});
 			temptext.fixedToCamera = true;
-			leaderboard.push(temptext);
+			leaderboard[i-1] = temptext;
 		}
+
+		tempscore = game.add.text(widthT - 40, 45, 'Score:- 0', { 
+			font: "15px Courier",
+			fill: "#19cb65",
+		});
+		textscore = tempscore;
+		textscore.fixedToCamera = true;
 
 		// add inbuilt follow cam
 		game.camera.follow(player, Phaser.Camera.FOLLOW_LOCKON, 1, 1);
@@ -283,7 +298,8 @@ main.prototype = {
 		socket.on('leaderBoard',onBoardUpdate);
 		//listen to enemy movement 
 		socket.on("enemy_move", onEnemyMove);
-		socket.on("update_score",function(data){ player.score = data;});		
+		socket.on("update_score",function(data){ textscore.setText("Score:- " + data);
+		console.log(textscore);});		
 		// when received remove_player, remove the player passed; 
 		socket.on('remove_player', onRemovePlayer);
 
