@@ -135,6 +135,25 @@ function findPlayer (id){
 	}
 }
 
+
+
+
+
+function onKill (data) {
+	var removePlayer = findPlayer(data.id);
+	
+	if (removePlayer) {
+		playerList.splice(playerList.indexOf(removePlayer), 1);
+	}
+	
+	console.log("removing player " + data.id);
+	this.broadcast.emit('remove_player', {id: data.id});
+}
+
+
+
+
+
 io.sockets.on('connection', function(socket){
 	console.log("socket connected"); 
 	
@@ -146,4 +165,6 @@ io.sockets.on('connection', function(socket){
 	socket.on("move_player", onMovePlayer);
 
 	socket.on("food_eaten",onFoodEaten);
+
+	socket.on('kill',onKill);
 });

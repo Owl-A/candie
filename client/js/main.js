@@ -37,6 +37,11 @@ function onsocketConnected () {
 // When the server notifies us of client disconnection, we find the disconnected
 // enemy and remove from our game
 function onRemovePlayer (data) {
+	if (data.id == socket.id){ 
+		onDeath();
+		return;
+	}
+
 	var removePlayer = find_Player_by_id(data.id);
 	// Player not found
 	if (!removePlayer) {
@@ -86,15 +91,67 @@ function onNewPlayer (data) {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 // tomorrow's work !
 // death trigger !
 function onCollision(me, enemy) {
-	console.log(me.sprite.frame);
-	console.log(enemy.sprite.frame);	
 	if ((me.sprite.frame + 1)%3 == enemy.sprite.frame) {
-		console.log("ded, yu ded nibba");
+		var removePlayer = find_Player_by_id(enemy.sprite.id);
+		var temp_ind = enemies.indexOf(removePlayer);
+		var temp_id = removePlayer.id;
+   		console.log(removePlayer);
+		console.log(enemy.sprite.id);
+		// console.log(removePlayer.play.sprite.id);
+		removePlayer.play.destroy();
+		enemies.splice(temp_ind, 1);
+		socket.emit('kill', { id : temp_id});
+		// enemy.sprite.destroy();
 	};
 }
+
+function onDeath () {
+	for (var i = 0; i < enemies.length; i++) {
+			 enemies[i].play.destroy();
+	}		
+	// for (var i = 0; i < foodnum; i++) {
+	// 	food[i].food.body.sprite.destroy();
+	// 	food[i].food.body.destroy();
+	// 	delete food[i];
+	// }	
+	enemies = [];
+	player.body.sprite.destroy();
+	game.state.start('start');
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 function onFoodUpdate (data) {	
