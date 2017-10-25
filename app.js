@@ -31,11 +31,12 @@ var playerList = [];
 
 
 //a player class in the server
-var Player = function (startX, startY, init_color, name) {
+var Player = function (startX, startY, init_color, name, score) {
   this.x = startX;
   this.y = startY;
   this.color = init_color;
   this.name = name;
+  this.score = score;
 }
 
 function onNewplayer (data) {
@@ -144,6 +145,7 @@ function onKill (data) {
 	if (removePlayer) {
 		console.log("removing player " + removePlayer.id);
 		playerList.splice(playerList.indexOf(removePlayer), 1);
+		console.log(this.id);			
 	}
 	
 	this.broadcast.emit('remove_player', {id: data.id});

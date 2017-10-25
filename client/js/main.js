@@ -110,7 +110,7 @@ function onDeath () {
 		}
 	}	
 	enemies = [];
-	player.body.sprite.destroy();
+	if(player.body) player.body.sprite.destroy();
 	game.state.start('start');
 }
 
