@@ -244,29 +244,29 @@ main.prototype = {
 		cursors = game.input.keyboard.createCursorKeys();
 
 
-		Chat = game.add.inputField(document.documentElement.clientWidth - widthT - 10, document.documentElement.clientHeight - 45,  {
-		    font: '15px Arial',
-		    fill: '#212121',
-		    fontWeight: 'bold',
-		    width: widthT,
-		    padding: 8,
-		    borderWidth: 4,
-		    borderColor: '#000',
-		    borderRadius: 7,
-		    placeHolder: 'Enter Your Name',
+		// Chat = game.add.inputField(document.documentElement.clientWidth - widthT - 10, document.documentElement.clientHeight - 45,  {
+		//     font: '15px Arial',
+		//     fill: '#212121',
+		//     fontWeight: 'bold',
+		//     width: widthT,
+		//     padding: 8,
+		//     borderWidth: 4,
+		//     borderColor: '#000',
+		//     borderRadius: 7,
+		//     placeHolder: 'Enter Your Name',
 
-		    type: PhaserInput.InputType.text
-		});
-		Chat.fixedToCamera = true;
+		//     type: PhaserInput.InputType.text
+		// });
+		// Chat.fixedToCamera = true;
 
-		for(var i = 2; i<7;i++){
-			temptext = game.add.text(document.documentElement.clientWidth - widthT - 10, document.documentElement.clientHeight - 45*i, 'qsdcv', { 
-				font: "15px Courier",
-				fill: "#19cb65",
-			});
-			temptext.fixedToCamera = true;
-			textChat.push(temptext);
-		}
+		// for(var i = 2; i<7;i++){
+		// 	temptext = game.add.text(document.documentElement.clientWidth - widthT - 10, document.documentElement.clientHeight - 45*i, 'qsdcv', { 
+		// 		font: "15px Courier",
+		// 		fill: "#19cb65",
+		// 	});
+		// 	temptext.fixedToCamera = true;
+		// 	textChat.push(temptext);
+		// }
 
 		for(var i = 1; i<6;i++){
 			temptext = game.add.text(document.documentElement.clientWidth - widthT - 10, 45*i, '', { 
