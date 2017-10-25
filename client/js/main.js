@@ -21,6 +21,7 @@ var foodnum = 100
 var food = new Array(foodnum); // length of the food array is 100
 var enemies = [];
 var threshold = 0.1;
+var leaderBoard;
 var rfood;
 
 var main = function(game){
@@ -183,6 +184,11 @@ function find_Player_by_id (id){
 	}
 }
 
+function onBoardUpdate (data) {
+	leaderBoard = data;
+	console.log(leaderBoard);
+}
+
 main.prototype = {
 	// preload: function() {
 	// 	 game.load.spritesheet('circle', '/assets/ballsf.png',81,81,3);
@@ -236,6 +242,7 @@ main.prototype = {
 		socket.on('food_update',onFoodUpdate);
 		socket.on('change_color',onColorChange);
 		socket.on("new_enemyPlayer", onNewPlayer);
+		socket.on('leaderBoard',onBoardUpdate);
 		//listen to enemy movement 
 		socket.on("enemy_move", onEnemyMove);
 		
