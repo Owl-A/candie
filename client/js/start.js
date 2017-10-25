@@ -10,6 +10,7 @@ start.prototype = {
 		 game.load.image('gfood', '/assets/gfood.png');
 		 game.load.image('bfood', '/assets/bfood.png');
 		 game.load.image('backdrop','/assets/backdrop.png');
+		 game.load.image('round-rect','/assets/rect.png');
 	},
 
 	create: function() {

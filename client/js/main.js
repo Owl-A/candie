@@ -27,6 +27,7 @@ var widthT = 200;
 var textChat = [];
 var leaderboard = [];
 var textscore;
+var round = [];
 
 var main = function(game){
 };
@@ -194,10 +195,12 @@ function onBoardUpdate (data) {
 	console.log(leaderBoard);
 	var l = leaderBoard.length;
 	for(var i=0;i<l;i++){
-		leaderboard[i].setText(data[i].name + " - " + data[i].score);
+		leaderboard[i].setText(data[i].name + ":- " + data[i].score);
+		round[i].visible = true;
 	}
 	for(var i =l;i<5;i++){
 		leaderboard[i].setText("");
+		round[i].visible = false;
 	}
 }
 
@@ -220,7 +223,7 @@ main.prototype = {
 		enemyGrp = game.physics.p2.createCollisionGroup(); 
 		rfoodGrp = game.physics.p2.createCollisionGroup();
 
-		game.stage.backgroundColor = 0xcccccc;
+		game.stage.backgroundColor = 0xffc491;
 		game.add.tileSprite(0,0,3000,3000,'backdrop');
 		game.physics.p2.updateBoundsCollisionGroup();
 		//  Add a sprite
@@ -242,6 +245,9 @@ main.prototype = {
 		rfood.physicsBodyType = Phaser.Physics.P2JS;
 
 		cursors = game.input.keyboard.createCursorKeys();
+
+		player.body.tint = 0x000000;
+    	player.body.alpha = 0.6;
 
 
 		// Chat = game.add.inputField(document.documentElement.clientWidth - widthT - 10, document.documentElement.clientHeight - 45,  {
@@ -268,20 +274,71 @@ main.prototype = {
 		// 	textChat.push(temptext);
 		// }
 
-		for(var i = 1; i<6;i++){
-			temptext = game.add.text(document.documentElement.clientWidth - widthT - 10, 45*i, '', { 
+
+		temprect = game.add.sprite(document.documentElement.clientWidth -120, 40, 'round-rect');
+		temprect.width = 170;
+		temprect.height = 19;
+		temprect.anchor.set(0.5);
+		temprect.fixedToCamera = true;
+
+		lead = game.add.text(document.documentElement.clientWidth -120, 40, 'Leaderboard', { 
 				font: "15px Courier",
-				fill: "#19cb65",
+				fill: "#000",
+				fontWeight: 'bold',
+				stroke: "#ffffff",
+				strokeThickness: 5,
 			});
+		lead.anchor.set(0.5);
+		lead.fixedToCamera = true;
+
+		nametext =game.add.text(document.documentElement.clientWidth/2 -10, document.documentElement.clientHeight - 70, Name, { 
+				font: "35px Ubuntu",
+				fill: "#000",
+				fontWeight: 'bold',
+				align: "center",
+				stroke: "#ffffff",
+				strokeThickness: 5,
+	
+			});
+			nametext.anchor.set(0.5);
+			nametext.fixedToCamera = true;
+
+		for(var i = 1; i<6;i++){
+
+			temprect = game.add.sprite(document.documentElement.clientWidth -120, 20 + 20*(i+1), 'round-rect');
+			temprect.width = 170;
+			temprect.height = 19;
+			temprect.anchor.set(0.5);
+			temprect.fixedToCamera = true;
+			round[i-1] = temprect;
+
+			temptext = game.add.text(document.documentElement.clientWidth -120, 20 + 20*(i+1), '', { 
+				font: "15px Ubuntu",
+				fill: "#000",
+				fontWeight: 'bold',
+				align: "center",
+				stroke: "#ffffff",
+				strokeThickness: 5,
+			});
+			temptext.anchor.set(0.5);
 			temptext.fixedToCamera = true;
 			leaderboard[i-1] = temptext;
 		}
 
-		tempscore = game.add.text(widthT - 40, 45, 'Score:- 0', { 
-			font: "15px Courier",
-			fill: "#19cb65",
-		});
+			temprect = game.add.sprite(90, 40, 'round-rect');
+			temprect.width = 170;
+			temprect.height = 19;
+			temprect.anchor.set(0.5);
+			temprect.fixedToCamera = true;
+
+		tempscore = game.add.text(90, 40, 'Score:- 0', { 
+				font: "15px Ubuntu",
+				fill: "#000",
+				fontWeight: 'bold',
+				stroke: "#ffffff",
+				strokeThickness: 5,});
 		textscore = tempscore;
+		textscore.anchor.set(0.5);
 		textscore.fixedToCamera = true;
 
 		// add inbuilt follow cam
