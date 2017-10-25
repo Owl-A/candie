@@ -80,7 +80,10 @@ console.log(data);
 	
 	this.emit('food_update',food); // send state of food
 
-	playerList.push(newPlayer); 
+	playerList.push(newPlayer);
+
+	this.emit('leaderBoard',leaderBoard);
+	this.broadcast.emit('leaderBoard',leaderBoard);
 }
 
 function onClientdisconnect() {
@@ -99,6 +102,7 @@ function onClientdisconnect() {
 	
 	//send message to every connected client except the sender
 	this.broadcast.emit('remove_player', {id: this.id});
+	this.broadcast.emit('leaderBoard',leaderBoard);
 }
 
 function onFoodEaten (data) {
@@ -160,7 +164,6 @@ function update_board (data) {
 					name : data.name,
 					score : data.score
 				});
-			// send board
 			return;
 		}
 	}
@@ -171,7 +174,6 @@ function update_board (data) {
 			score : data.score
 		});
 	}
-	// send board 
 
 }	
 
@@ -179,9 +181,11 @@ function onKill (data) {
 	var removePlayer = findPlayer(data.id);
 	var scoredBy = findPlayer(this.id);
 	if (removePlayer) {
+		playerList.splice(playerList.indexOf(removePlayer), 1);
 		scoredBy.score += 10;
 		update_board(scoredBy);
 		console.log(leaderBoard);
+		console.log(removePlayer.id + " died");
 	}
 	
 	this.broadcast.emit('remove_player', {id: data.id});
