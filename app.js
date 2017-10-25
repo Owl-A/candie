@@ -186,6 +186,7 @@ function onKill (data) {
 		update_board(scoredBy);
 		console.log(leaderBoard);
 		console.log(removePlayer.id + " died");
+		this.emit('update_score', scoredBy.score);
 	}
 	
 	this.broadcast.emit('remove_player', {id: data.id});

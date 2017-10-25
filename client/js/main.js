@@ -226,6 +226,7 @@ main.prototype = {
 		player.body.collides(enemyGrp,onCollision,this);
 		player.body.collides(rfoodGrp,destroyFood,this);
 		player.body.damping = 0.7;
+		player.score = 0;
 	    //  Enable if for physics. This creates a default rectangular body.
 
 		rfood = game.add.group();
@@ -282,7 +283,7 @@ main.prototype = {
 		socket.on('leaderBoard',onBoardUpdate);
 		//listen to enemy movement 
 		socket.on("enemy_move", onEnemyMove);
-		
+		socket.on("update_score",function(data){ player.score = data;});		
 		// when received remove_player, remove the player passed; 
 		socket.on('remove_player', onRemovePlayer);
 
