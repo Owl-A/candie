@@ -31,16 +31,17 @@ var playerList = [];
 
 
 //a player class in the server
-var Player = function (startX, startY, init_color) {
+var Player = function (startX, startY, init_color, name) {
   this.x = startX;
   this.y = startY;
   this.color = init_color;
+  this.name = name;
 }
 
 function onNewplayer (data) {
 console.log(data);
 	//new player instance
-	var newPlayer = new Player(data.x, data.y, 0);
+	var newPlayer = new Player(data.x, data.y, 0, data.name);
 	
 	console.log("created new player with id " + this.id);
 	newPlayer.id = this.id; 	
@@ -49,7 +50,8 @@ console.log(data);
 		id: newPlayer.id, 
 		x: newPlayer.x,
 		y: newPlayer.y,
-		color: 0
+		color: 0,
+		name: newPlayer.name
 	}; 
 	
 	//send to the new player about everyone who is already connected. 	
@@ -59,7 +61,8 @@ console.log(data);
 			id: existingPlayer.id,
 			x: existingPlayer.x,
 			y: existingPlayer.y, 
-			color: existingPlayer.color
+			color: existingPlayer.color,
+			name: existingPlayer.name
 		};
 		console.log("pushing player");
 		//send message to the sender-client only
@@ -139,10 +142,10 @@ function onKill (data) {
 	var removePlayer = findPlayer(data.id);
 	
 	if (removePlayer) {
+		console.log("removing player " + removePlayer.id);
 		playerList.splice(playerList.indexOf(removePlayer), 1);
 	}
 	
-	console.log("removing player " + data.id);
 	this.broadcast.emit('remove_player', {id: data.id});
 	this.emit('remove_player', {id: data.id});
 }

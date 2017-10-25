@@ -11,7 +11,6 @@
  * food_eaten:
  *
  *
- * // TODO ; debug foodupdate and onfoodDestroyed
  */
 //game.config.forceSetTimeOut = true;	
 var playerGrp;
@@ -30,7 +29,7 @@ var main = function(game){
 function onsocketConnected () {
 	console.log("connected to server"); 
 	// send the server our initial position and tell it we are connected
-	socket.emit('new_player', {x: game.world.centerX, y: game.world.centerY});
+	socket.emit('new_player', {x: game.world.centerX, y: game.world.centerY, name: Name});
 	player.body.sprite.id = socket.id; // try !!
 }
 
@@ -53,10 +52,11 @@ function onRemovePlayer (data) {
 	removePlayer.play.destroy();
 }
 
-var remote_player = function(id, startX, startY){
+var remote_player = function(id, startX, startY, name){
 	this.x = startX;
 	this.y = startY;
 	this.id = id;
+	this.name = name;
 	this.play = game.add.sprite(startX, startY, 'circle');
 }
 
@@ -74,7 +74,7 @@ var food_wrapper = function(id,startX,startY,group,type){
 //Server will tell us when a new enemy player connects to the server.
 //We create a new enemy in our game.
 function onNewPlayer (data) {
-	var new_enemy = new remote_player(data.id, data.x, data.y); 
+	var new_enemy = new remote_player(data.id, data.x, data.y, data.name); 
 	new_enemy.play.anchor.set(0.5);
 
 	console.log(data.color);

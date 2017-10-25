@@ -1,12 +1,9 @@
-
-
 widthTex = 600;
+var Name;
 var start =function(game){
-
 };
 
-start.prototype = {
-
+start.prototype = { 
 	preload: function() {
 		 game.load.spritesheet('circle', '/assets/ballsf.png',81,81,3);
 		 game.load.image('rfood', '/assets/rfood.png');
@@ -27,10 +24,10 @@ start.prototype = {
 
 		game.stage.backgroundColor = 0xc0aeef;
 		game.add.tileSprite(0,0,3000,3000,'backdrop');
-		var wkey = game.input.keyboard.addKey(Phaser.Keyboard.W);
+		var wkey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
 		wkey.onDown.add(this.star, this);
 
-		var Tex = game.add.inputField(document.documentElement.clientWidth/2 - widthTex/2, document.documentElement.clientHeight/2 - 10,  {
+		Name = game.add.inputField(document.documentElement.clientWidth/2 - widthTex/2, document.documentElement.clientHeight/2 - 10,  {
 		    font: '35px Arial',
 		    fill: '#212121',
 		    fontWeight: 'bold',
@@ -42,10 +39,11 @@ start.prototype = {
 		    placeHolder: 'Enter Your Name',
 		    type: PhaserInput.InputType.text
 		});
-		
+
 	},
 
 	star: function(){
+		Name = Name.value;
 		game.state.start('main');
 	}
 };
