@@ -195,7 +195,11 @@ function onBoardUpdate (data) {
 	console.log(leaderBoard);
 	var l = leaderBoard.length;
 	for(var i=0;i<l;i++){
-		leaderboard[i].setText(data[i].name + ":- " + data[i].score);
+		if(data[i].name.length > 14){
+			leaderboard[i].setText(data[i].name.substring(0,11) + "...   " + data[i].score);
+		}else{
+			leaderboard[i].setText(data[i].name + "   " + data[i].score);
+		}
 		round[i].visible = true;
 	}
 	for(var i =l;i<5;i++){
@@ -223,7 +227,7 @@ main.prototype = {
 		enemyGrp = game.physics.p2.createCollisionGroup(); 
 		rfoodGrp = game.physics.p2.createCollisionGroup();
 
-		game.stage.backgroundColor = 0xffc491;
+		game.stage.backgroundColor = 0xbec4ce;
 		game.add.tileSprite(0,0,3000,3000,'backdrop');
 		game.physics.p2.updateBoundsCollisionGroup();
 		//  Add a sprite
@@ -307,7 +311,7 @@ main.prototype = {
 
 			temprect = game.add.sprite(document.documentElement.clientWidth -120, 20 + 20*(i+1), 'round-rect');
 			temprect.width = 170;
-			temprect.height = 19;
+			temprect.height = 21;
 			temprect.anchor.set(0.5);
 			temprect.fixedToCamera = true;
 			round[i-1] = temprect;
