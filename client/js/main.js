@@ -35,7 +35,7 @@ var main = function(game){
 function onsocketConnected () {
 	console.log("connected to server"); 
 	// send the server our initial position and tell it we are connected
-	socket.emit('new_player', {x: game.world.centerX, y: game.world.centerY, name: Name});
+	socket.emit('new_player', {x: player.body.X, y: player.body.Y, name: Name});
 	player.body.sprite.id = socket.id; // try !!
 	//onBoardUpdate(leaderBoard);
 }
@@ -231,7 +231,7 @@ main.prototype = {
 		game.add.tileSprite(0,0,3000,3000,'backdrop');
 		game.physics.p2.updateBoundsCollisionGroup();
 		//  Add a sprite
-		player = game.add.sprite(game.world.centerX, game.world.centerY	, 'circle');
+		player = game.add.sprite(game.world.randomX, game.world.randomY	, 'circle');
 		
 		player.frame = 0; 	
 		player.type = 0;  // PLayer properties, needed in collision callbacks. 
