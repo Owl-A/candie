@@ -12,7 +12,8 @@
  *
  *
  */
-//game.config.forceSetTimeOut = true;	
+//game.config.forceSetTimeOut = true;
+
 var playerGrp;
 var enemyGrp;
 var rfoodGrp;
@@ -32,12 +33,12 @@ var round = [];
 var main = function(game){
 };
 
+// Called when the client connects to the server, or in other words, as soon as we open the game in the browser.
+// Tells server to add a new player, and assigns an ID to the player.
 function onsocketConnected () {
 	console.log("connected to server"); 
-	// send the server our initial position and tell it we are connected
 	socket.emit('new_player', {x: player.body.X, y: player.body.Y, name: Name});
 	player.body.sprite.id = socket.id; // try !!
-	//onBoardUpdate(leaderBoard);
 }
 
 // When the server notifies us of client disconnection, we find the disconnected
@@ -59,6 +60,7 @@ function onRemovePlayer (data) {
 	removePlayer.play.destroy();
 }
 
+// Class for enemy players
 var remote_player = function(id, startX, startY, name){
 	this.x = startX;
 	this.y = startY;
@@ -66,6 +68,7 @@ var remote_player = function(id, startX, startY, name){
 	this.name = name;
 	this.play = game.add.sprite(startX, startY, 'circle');
 }
+
 
 var food_wrapper = function(id,startX,startY,group,type){
 	this.id = id;
@@ -78,8 +81,9 @@ var food_wrapper = function(id,startX,startY,group,type){
 	} 
 }
 
-//Server will tell us when a new enemy player connects to the server.
-//We create a new enemy in our game.
+// Called when server notifies of new player connection, which means addition of new enemy
+// A new enemy is created, and pushed into the enemies list.
+// Also, collision groups are updated.
 function onNewPlayer (data) {
 	var new_enemy = new remote_player(data.id, data.x, data.y, data.name); 
 	new_enemy.play.anchor.set(0.5);
@@ -97,14 +101,16 @@ function onNewPlayer (data) {
 	enemies.push(new_enemy);
 }
 
-// tomorrow's work !
-// death trigger !
+// Called when 'enemy' collides with client's player.
+// Send message to server to remove it from the game.
 function onCollision(me, enemy) {
 	if ((me.sprite.frame + 1)%3 == enemy.sprite.frame) {
 		socket.emit('kill', { id : enemy.sprite.id});
 	};
 }
 
+// Client side death management
+// basically everything is destroyed
 function onDeath () {
 	for (var i = 0; i < enemies.length; i++) {
 			 enemies[i].play.destroy();
@@ -121,6 +127,7 @@ function onDeath () {
 	game.state.start('start');
 }
 
+// Function to update positions of food particles
 function onFoodUpdate (data) {	
 	console.log(data);
 	for (key in data) {
@@ -139,8 +146,6 @@ function onFoodUpdate (data) {
 	}		
 }
 
-// color change happens here !!!!!
-// need to plan out a color sync !!!!
 
 function destroyFood (playr,food_particle) {
 	socket.emit('food_eaten',{ id : food_particle.sprite.id , Pid : playr.sprite.id}); // test
@@ -150,6 +155,7 @@ function destroyFood (playr,food_particle) {
 	food_particle.sprite.destroy();
 	food_particle.destroy();
 }
+
 
 function onColorChange(data){
 	for (id in data){
@@ -209,13 +215,6 @@ function onBoardUpdate (data) {
 }
 
 main.prototype = {
-	// preload: function() {
-	// 	 game.load.spritesheet('circle', '/assets/ballsf.png',81,81,3);
-	// 	 game.load.image('rfood', '/assets/rfood.png');
-	// 	 game.load.image('gfood', '/assets/gfood.png');
-	// 	 game.load.image('bfood', '/assets/bfood.png');
-	// 	 game.load.image('backdrop','/assets/backdrop.png');
-	// },
 	create: function() {
 		this.state.start('Startup');
 		game.world.setBounds(0, 0, 3000, 3000); // bounds of the world
@@ -253,32 +252,6 @@ main.prototype = {
 		player.body.tint = 0x000000;
     	player.body.alpha = 0.6;
 
-
-		// Chat = game.add.inputField(document.documentElement.clientWidth - widthT - 10, document.documentElement.clientHeight - 45,  {
-		//     font: '15px Arial',
-		//     fill: '#212121',
-		//     fontWeight: 'bold',
-		//     width: widthT,
-		//     padding: 8,
-		//     borderWidth: 4,
-		//     borderColor: '#000',
-		//     borderRadius: 7,
-		//     placeHolder: 'Enter Your Name',
-
-		//     type: PhaserInput.InputType.text
-		// });
-		// Chat.fixedToCamera = true;
-
-		// for(var i = 2; i<7;i++){
-		// 	temptext = game.add.text(document.documentElement.clientWidth - widthT - 10, document.documentElement.clientHeight - 45*i, 'qsdcv', { 
-		// 		font: "15px Courier",
-		// 		fill: "#19cb65",
-		// 	});
-		// 	temptext.fixedToCamera = true;
-		// 	textChat.push(temptext);
-		// }
-
-
 		temprect = game.add.sprite(document.documentElement.clientWidth -120, 40, 'round-rect');
 		temprect.width = 170;
 		temprect.height = 19;
@@ -295,6 +268,7 @@ main.prototype = {
 		lead.anchor.set(0.5);
 		lead.fixedToCamera = true;
 
+		// for adding name in the bottom middle
 		nametext =game.add.text(document.documentElement.clientWidth/2 -10, document.documentElement.clientHeight - 70, Name, { 
 				font: "35px Ubuntu",
 				fill: "#000",
@@ -307,6 +281,7 @@ main.prototype = {
 			nametext.anchor.set(0.5);
 			nametext.fixedToCamera = true;
 
+		// for adding leaderboard in the upper right corner
 		for(var i = 1; i<6;i++){
 
 			temprect = game.add.sprite(document.documentElement.clientWidth -120, 20 + 20*(i+1), 'round-rect');
@@ -329,11 +304,12 @@ main.prototype = {
 			leaderboard[i-1] = temptext;
 		}
 
-			temprect = game.add.sprite(90, 40, 'round-rect');
-			temprect.width = 170;
-			temprect.height = 19;
-			temprect.anchor.set(0.5);
-			temprect.fixedToCamera = true;
+		// adds score of the client
+		temprect = game.add.sprite(90, 40, 'round-rect');
+		temprect.width = 170;
+		temprect.height = 19;
+		temprect.anchor.set(0.5);
+		temprect.fixedToCamera = true;
 
 		tempscore = game.add.text(90, 40, 'Score:- 0', { 
 				font: "15px Ubuntu",
@@ -351,7 +327,6 @@ main.prototype = {
 
 		socket.on("connect", onsocketConnected);
 		onsocketConnected();
-		//listen to new enemy connections
 		
 		socket.on('food_update',onFoodUpdate);
 		socket.on('change_color',onColorChange);
@@ -369,14 +344,9 @@ main.prototype = {
 	},
 
 	update: function () {
-		// player.body.accelaration.x = (-2)*player.body.velocity.x;
-		// player.body.accelaration.y = (-2)*player.body.velocity.y;
-
-		// console.log(player.body.velocity.x + " " + player.body.velocity.y);
 	    if (cursors.left.isDown)
 	    {
 	    	player.body.moveLeft(400);
-	    	// console.log(enemies);
 	    }
 	    else if (cursors.right.isDown)
 	    {
