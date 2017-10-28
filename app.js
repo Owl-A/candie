@@ -12,9 +12,10 @@ app.get('/',function (req, res) {
 	res.sendFile(__dirname + '/client/index.html');
 })
 
+// A List for all the food in the game
 var food = {};
 
-// foodie attack
+// Randomly assigns positions to food items in the array
 for (var i = 0; i < 100; ++i) {
 	food[i.toString()] = { 
 		x: 3000*Math.random(),
@@ -26,11 +27,14 @@ serv.listen('4040', function () {
 	console.log('server initiated');
 })
 
+// A list for all the players in the game
 var playerList = [];
+
+// A list for the leaderboard (top5 scorers)
 var leaderBoard = [];
 var Chat = [];
 
-//a player class in the server
+// Player class in the server
 var Player = function (startX, startY, init_color, name, score) {
   this.x = startX;
   this.y = startY;
@@ -39,6 +43,7 @@ var Player = function (startX, startY, init_color, name, score) {
   this.score = score;
 }
 
+// This function is called when any new client connects to the server
 function onNewplayer (data) {
 console.log(data);
 	//new player instance
@@ -71,12 +76,14 @@ console.log(data);
 		this.emit("new_enemyPlayer", player_info);
 	}
 	
+	// Updating Leaderboard if required
 	if (leaderBoard.length < 5) {leaderBoard.push({
 		id : newPlayer.id,
 		name : newPlayer.name,
 		score : 0
 	})};
-	//send message to every connected client except the sender
+
+	// send message to every connected client except the sender
 	this.broadcast.emit('new_enemyPlayer', current_info);
 	
 	this.emit('food_update',food); // send state of food
@@ -87,21 +94,24 @@ console.log(data);
 	this.broadcast.emit('leaderBoard',leaderBoard);
 }
 
+// Called as soon as any client disconnects from the server. For example, when he refreshes the page, or closes it.
 function onClientdisconnect() {
 	console.log('disconnected');
 	var removePlayer = findPlayer(this.id);
 	
+	// Remove from the list of players
 	if (removePlayer) {
 		playerList.splice(playerList.indexOf(removePlayer), 1);
 	}
 
+	// Remove from Leaderboard
 	for (var i = 0; i < leaderBoard.length; i++) {
 		if (leaderBoard[i].id == this.id) leaderBoard.splice(i,1);
 	}
 
 	console.log("removing player " + this.id);
 	
-	//send message to every connected client except the sender
+	// send message to every connected client except the sender
 	this.broadcast.emit('remove_player', {id: this.id});
 	this.broadcast.emit('leaderBoard',leaderBoard);
 }
@@ -120,6 +130,9 @@ function chatMessage(data){
 }	
 
 
+// Called when a client eats a food item.
+// The parameter data also contains information regarding the 'eater' and that is used for changing the color, if needed,
+// and also updating the other clients
 function onFoodEaten (data) {
 	this.broadcast.emit('food_destroyed',data);
 	food[data.id].x = 3000*Math.random();
@@ -138,12 +151,10 @@ function onFoodEaten (data) {
 	this.broadcast.emit('change_color',temp_play);
 	this.broadcast.emit('food_update',temp);
 	this.emit('food_update',temp);
-	
-	// let all clients know the food is gone !
-	// make a new food item with same id !
 }
 
-//update the player position and send the information back to every client except sender
+// Function is called as soon as server is informed by a client regarding any movement.
+// Each other client is informed of the same movement, with help of data provided to the function.
 function onMovePlayer (data) {
 	var movePlayer = findPlayer(this.id);
 	if(!movePlayer){return;}
@@ -155,10 +166,11 @@ function onMovePlayer (data) {
 		x: data.x,
 		y: data.y,
 	}
-	//send message to every connected client except the sender
+	// send message to every connected client except the sender
 	this.broadcast.emit('enemy_move', moveplayerData);
 }
 
+// Returns player of the specific ID
 function findPlayer (id){
 	for (var i = 0; i < playerList.length; i++) {
 		if (playerList[i].id == id) {
@@ -167,6 +179,8 @@ function findPlayer (id){
 	}
 }
 
+// Function updates Leaderboard with the top 5 players currently.
+// Called whenever there is 'annhilation' of any player.
 function update_board (data) {
 	for (var i = 0; i < leaderBoard.length; i++) {
 		if (leaderBoard[i].id == data.id) leaderBoard.splice(i,1);
@@ -192,18 +206,25 @@ function update_board (data) {
 
 }	
 
+// Called when server recieves message from client that it's player has killed another player.
+// The killed guy's info comes in as data to the function
 function onKill (data) {
 	var removePlayer = findPlayer(data.id);
 	var scoredBy = findPlayer(this.id);
 	if (removePlayer) {
+		// removing killed guy from player list of the server
 		playerList.splice(playerList.indexOf(removePlayer), 1);
+		// updating score of killer in the server database
 		scoredBy.score += 10;
+		// update leaderboard
 		update_board(scoredBy);
 		console.log(leaderBoard);
 		console.log(removePlayer.id + " died");
+		// tell the killer client to update it's own score as well, used for displaying the same.
 		this.emit('update_score', scoredBy.score);
 	}
 	
+	// tell everyone to remove the killed player from the screen.
 	this.broadcast.emit('remove_player', {id: data.id});
 	this.emit('remove_player', {id: data.id});
 }
