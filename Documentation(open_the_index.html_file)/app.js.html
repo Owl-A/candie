@@ -1,4 +1,32 @@
-/**
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: app.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: app.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
  * @file Manages sever side handling of the game
  * @author sudoofus
 */
@@ -24,7 +52,7 @@ app.get('/',function (req, res) {
 var food = {}; 
 
 // Randomly assigns positions to food items in the array
-for (var i = 0; i < 100; ++i) {
+for (var i = 0; i &lt; 100; ++i) {
 	food[i.toString()] = { 
 		x: 3000*Math.random(),
 		y: 3000*Math.random(),
@@ -83,7 +111,7 @@ console.log(data);
 	}; 
 	
 	//send to the new player about everyone who is already connected. 	
-	for (i = 0; i < playerList.length; i++) {
+	for (i = 0; i &lt; playerList.length; i++) {
 		existingPlayer = playerList[i];
 		var player_info = {
 			id: existingPlayer.id,
@@ -99,11 +127,11 @@ console.log(data);
 	}
 	
 	// Updating Leaderboard if required
-	leaderBoard.push({
+	if (leaderBoard.length &lt; 5) {leaderBoard.push({
 		id : newPlayer.id,
 		name : newPlayer.name,
 		score : 0
-	});
+	})};
 
 	// send message to every connected client except the sender
 	this.broadcast.emit('new_enemyPlayer', current_info);
@@ -112,8 +140,8 @@ console.log(data);
 
 	playerList.push(newPlayer);
 
-	this.emit('leaderBoard',leaderBoard.slice(0,5));
-	this.broadcast.emit('leaderBoard',leaderBoard.slice(0,5));
+	this.emit('leaderBoard',leaderBoard);
+	this.broadcast.emit('leaderBoard',leaderBoard);
 }
 
 /**
@@ -130,7 +158,7 @@ function onClientdisconnect() {
 	}
 
 	// Remove from Leaderboard
-	for (var i = 0; i < leaderBoard.length; i++) {
+	for (var i = 0; i &lt; leaderBoard.length; i++) {
 		if (leaderBoard[i].id == this.id) leaderBoard.splice(i,1);
 	}
 
@@ -138,7 +166,7 @@ function onClientdisconnect() {
 	
 	// send message to every connected client except the sender
 	this.broadcast.emit('remove_player', {id: this.id});
-	this.broadcast.emit('leaderBoard',leaderBoard.slice(0,5));
+	this.broadcast.emit('leaderBoard',leaderBoard);
 }
 
 /**
@@ -220,7 +248,7 @@ function onMovePlayer (data) {
  * @returns {Player} - the player of the particular ID
 */
 function findPlayer (id){
-	for (var i = 0; i < playerList.length; i++) {
+	for (var i = 0; i &lt; playerList.length; i++) {
 		if (playerList[i].id == id) {
 			return playerList[i]; 
 		}
@@ -236,12 +264,12 @@ function findPlayer (id){
  * @param {dictionary} data - the stats of the player which might be integrated into the leaderboard
 */
 function update_board (data) {
-	for (var i = 0; i < leaderBoard.length; i++) {
+	for (var i = 0; i &lt; leaderBoard.length; i++) {
 		if (leaderBoard[i].id == data.id) leaderBoard.splice(i,1);
 	};
 	var i;
-	for ( i = 0; i < leaderBoard.length; i++) {
-		if (leaderBoard[i].score <= data.score) {
+	for ( i = 0; i &lt; leaderBoard.length; i++) {
+		if (leaderBoard[i].score &lt;= data.score) {
 			leaderBoard.splice(i,0,{ 
 					id : data.id,
 					name : data.name,
@@ -250,11 +278,14 @@ function update_board (data) {
 			return;
 		}
 	}
+	if (i &lt; 5) {		
 		leaderBoard.push({ 
 			id : data.id,
 			name : data.name,
 			score : data.score
 		});
+	}
+
 }	
 
 // Called when server recieves message from client that it's player has killed another player.
@@ -299,4 +330,26 @@ io.sockets.on('connection', function(socket){
 	socket.on("food_eaten",onFoodEaten);
 
 	socket.on('kill',onKill);
-});
+});</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="food_wrapper.html">food_wrapper</a></li><li><a href="Player.html">Player</a></li><li><a href="remote_player.html">remote_player</a></li></ul><h3>Global</h3><ul><li><a href="global.html#Chat">Chat</a></li><li><a href="global.html#chatMessage">chatMessage</a></li><li><a href="global.html#destroyFood">destroyFood</a></li><li><a href="global.html#enemies">enemies</a></li><li><a href="global.html#enemyGrp">enemyGrp</a></li><li><a href="global.html#find_Player_by_id">find_Player_by_id</a></li><li><a href="global.html#findPlayer">findPlayer</a></li><li><a href="global.html#food">food</a></li><li><a href="global.html#foodnum">foodnum</a></li><li><a href="global.html#leaderBoard">leaderBoard</a></li><li><a href="global.html#leaderboard">leaderboard</a></li><li><a href="global.html#onBoardUpdate">onBoardUpdate</a></li><li><a href="global.html#onChatUpdate">onChatUpdate</a></li><li><a href="global.html#onClientDisconnect">onClientDisconnect</a></li><li><a href="global.html#onCollision">onCollision</a></li><li><a href="global.html#onColorChange">onColorChange</a></li><li><a href="global.html#onDeath">onDeath</a></li><li><a href="global.html#onEnemyMove">onEnemyMove</a></li><li><a href="global.html#onFoodDestroyed">onFoodDestroyed</a></li><li><a href="global.html#onFoodEaten">onFoodEaten</a></li><li><a href="global.html#onFoodUpdate">onFoodUpdate</a></li><li><a href="global.html#onKill">onKill</a></li><li><a href="global.html#onMovePLayer">onMovePLayer</a></li><li><a href="global.html#onNewPlayer">onNewPlayer</a></li><li><a href="global.html#onRemovePlayer">onRemovePlayer</a></li><li><a href="global.html#onsocketConnected">onsocketConnected</a></li><li><a href="global.html#player">player</a></li><li><a href="global.html#playerGrp">playerGrp</a></li><li><a href="global.html#playerList">playerList</a></li><li><a href="global.html#rfood">rfood</a></li><li><a href="global.html#rfoodGrp">rfoodGrp</a></li><li><a href="global.html#round">round</a></li><li><a href="global.html#textChat">textChat</a></li><li><a href="global.html#textscore">textscore</a></li><li><a href="global.html#threshold">threshold</a></li><li><a href="global.html#update_board">update_board</a></li><li><a href="global.html#widthT">widthT</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sat Oct 28 2017 22:35:18 GMT+0530 (IST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,4 +1,6 @@
-
+/**
+ * @file this file is the first step of firing up the game. It is used to initiaite the graphics engine and also to call the start.js file for setting up the introduction page.
+*/
 
 var socket; 
 
