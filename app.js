@@ -28,6 +28,7 @@ serv.listen('4040', function () {
 
 var playerList = [];
 var leaderBoard = [];
+var Chat = [];
 
 //a player class in the server
 var Player = function (startX, startY, init_color, name, score) {
@@ -104,6 +105,20 @@ function onClientdisconnect() {
 	this.broadcast.emit('remove_player', {id: this.id});
 	this.broadcast.emit('leaderBoard',leaderBoard);
 }
+
+function chatMessage(data){
+	// var l = chat_message.length;
+	// l = Math.min(15,l);
+	// for(var i = l; i>0;i++){
+	// 	chat_message[i] = chat_message[i-1];
+	// }
+	// chat_message[0] = data.text;
+	// console.log(data);
+	console.log(data);
+	this.broadcast.emit('newChatmessage', data);
+	this.emit('newChatmessage', data)
+}	
+
 
 function onFoodEaten (data) {
 	this.broadcast.emit('food_destroyed',data);
@@ -196,7 +211,7 @@ function onKill (data) {
 io.sockets.on('connection', function(socket){
 	console.log("socket connected"); 
 	
-
+	socket.on('chat_message', chatMessage);
 	socket.on('disconnect', onClientdisconnect); 
 	
 	socket.on("new_player", onNewplayer);

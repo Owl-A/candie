@@ -115,7 +115,7 @@ function onDeath () {
 			if (food[i].food.body) {food[i].food.body.destroy()};
 			delete food[i];
 		}
-	}	
+	}
 	enemies = [];
 	if(player.body) player.body.sprite.destroy();
 	game.state.start('start');
@@ -168,6 +168,35 @@ function onFoodDestroyed (data) {
 		food[data.id].food.body.destroy();
 	}
 	delete food[data.id];
+}
+
+function onChatUpdate (data){
+	if(data.text != ""){
+
+	if(data.name == ""){
+		data.text = "Unknown Candi: " + data.text;
+	}
+	else{
+		data.text  = data.name + ": " + data.text;
+	}
+	var textLength = 25
+	n = parseInt(data.text.length/textLength) + 1;
+	for(var j=0;j<n;j++){
+		for(var i=13;i>=0;i--){
+			textChat[i+1].setText(textChat[i].text + "");
+			textChat[i+1].visible = true;
+		}
+	}
+	console.log(textChat + "  " + n);
+	var j = Math.max(0,n-1);
+	console.log(data.text.length);
+	for(var i = 0; i<data.text.length;i+=textLength){
+		textChat[j].setText(data.text.substring(i, Math.min(i + textLength, data.text.length)) + "-");
+		j--;
+		console.log(n);
+	}
+	textChat[j+1].setText(textChat[j+1].text.substring(0,textChat[j+1].text.length - 1));
+}
 }
 
 //Server tells us there is a new enemy movement. We find the moved enemy
@@ -254,38 +283,66 @@ main.prototype = {
     	player.body.alpha = 0.6;
 
 
-		// Chat = game.add.inputField(document.documentElement.clientWidth - widthT - 10, document.documentElement.clientHeight - 45,  {
-		//     font: '15px Arial',
-		//     fill: '#212121',
-		//     fontWeight: 'bold',
-		//     width: widthT,
-		//     padding: 8,
-		//     borderWidth: 4,
-		//     borderColor: '#000',
-		//     borderRadius: 7,
-		//     placeHolder: 'Enter Your Name',
+		chat = game.add.inputField(document.documentElement.clientWidth - 335, document.documentElement.clientHeight - 55,  {
+		    font: '15px Arial',
+		    fill: '#212121',
+		    fontWeight: 'bold',
+		    width: 280,
+		    padding: 8,
+		    borderWidth: 4,
+		    borderColor: 'green',
+		    placeHolder: 'Enter Your Name',
 
-		//     type: PhaserInput.InputType.text
-		// });
-		// Chat.fixedToCamera = true;
+		    type: PhaserInput.InputType.text
+		});
+		chat.fixedToCamera = true;
+
+		for(var i = 1; i<16;i++){
+
+			// temprect = game.add.sprite(document.documentElement.clientWidth - 65 - 120,  document.documentElement.clientHeight - 46 - 20*i, 'round-rect');
+			// temprect.height = 21;
+			// temprect.anchor.set(0.5);
+			// temprect.fixedToCamera = true;
+			// round[i-1] = temprect;
+			// temprect.width = 300;
+
+
+
+			tempchat = game.add.text(document.documentElement.clientWidth -65- 120, document.documentElement.clientHeight - 43 - 20*i, '', { 
+					font: "15px Courier",
+					fill: "#000",
+					fontWeight: 'bold',
+					stroke: "#ffffff",
+					strokeThickness: 5
+				});
+			tempchat.anchor.set(0.5);
+			tempchat.fixedToCamera = true;
+			textChat[i-1] = tempchat;
+		}
 
 		// for(var i = 2; i<7;i++){
-		// 	temptext = game.add.text(document.documentElement.clientWidth - widthT - 10, document.documentElement.clientHeight - 45*i, 'qsdcv', { 
+		// 	temptext = game.add.text(document.documentElement.clientWidth - widthT - 10, document.documentElement.clientHeight - 35 - 20*i, 'qsdcv', { 
 		// 		font: "15px Courier",
-		// 		fill: "#19cb65",
+		// 		fill: "#000",
+		// 		fontWeight: 'bold',
+		// 		stroke: "#ffffff",
+		// 		strokeThickness: 5,
 		// 	});
+		// 	temptext.anchor.set(0.5);
 		// 	temptext.fixedToCamera = true;
-		// 	textChat.push(temptext);
+		// 	textChat[i-2] = temptext;
 		// }
 
+		var wkey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+		wkey.onDown.add(this.star, this);
 
-		temprect = game.add.sprite(document.documentElement.clientWidth -120, 40, 'round-rect');
+		temprect = game.add.sprite(document.documentElement.clientWidth - 120, 36, 'round-rect');
 		temprect.width = 170;
 		temprect.height = 19;
 		temprect.anchor.set(0.5);
 		temprect.fixedToCamera = true;
 
-		lead = game.add.text(document.documentElement.clientWidth -120, 40, 'Leaderboard', { 
+		lead = game.add.text(document.documentElement.clientWidth - 120, 40, 'Leaderboard', { 
 				font: "15px Courier",
 				fill: "#000",
 				fontWeight: 'bold',
@@ -295,13 +352,13 @@ main.prototype = {
 		lead.anchor.set(0.5);
 		lead.fixedToCamera = true;
 
-		nametext =game.add.text(document.documentElement.clientWidth/2 -10, document.documentElement.clientHeight - 70, Name, { 
+		nametext = game.add.text(document.documentElement.clientWidth/2 - 10, document.documentElement.clientHeight - 70, Name, { 
 				font: "35px Ubuntu",
 				fill: "#000",
 				fontWeight: 'bold',
 				align: "center",
 				stroke: "#ffffff",
-				strokeThickness: 5,
+				strokeThickness: 10,
 	
 			});
 			nametext.anchor.set(0.5);
@@ -309,7 +366,7 @@ main.prototype = {
 
 		for(var i = 1; i<6;i++){
 
-			temprect = game.add.sprite(document.documentElement.clientWidth -120, 20 + 20*(i+1), 'round-rect');
+			temprect = game.add.sprite(document.documentElement.clientWidth - 120, 16 + 20*(i+1), 'round-rect');
 			temprect.width = 170;
 			temprect.height = 21;
 			temprect.anchor.set(0.5);
@@ -329,7 +386,7 @@ main.prototype = {
 			leaderboard[i-1] = temptext;
 		}
 
-			temprect = game.add.sprite(90, 40, 'round-rect');
+			temprect = game.add.sprite(90, 38, 'round-rect');
 			temprect.width = 170;
 			temprect.height = 19;
 			temprect.anchor.set(0.5);
@@ -366,6 +423,8 @@ main.prototype = {
 
 		socket.on('food_destroyed', onFoodDestroyed);
 
+		socket.on('newChatmessage', onChatUpdate);
+
 	},
 
 	update: function () {
@@ -395,6 +454,13 @@ main.prototype = {
 		x: player.body.x, 
 		y: player.body.y
 	});
+	},
+
+	star: function(){
+		X = chat.value;
+		socket.emit('chat_message', {name: Name, text: X});
+		chat.value = '';
+		//onChatUpdate({name: Name, text: X});
 	}
 }
 
