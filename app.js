@@ -77,11 +77,11 @@ console.log(data);
 	}
 	
 	// Updating Leaderboard if required
-	if (leaderBoard.length < 5) {leaderBoard.push({
+	leaderBoard.push({
 		id : newPlayer.id,
 		name : newPlayer.name,
 		score : 0
-	})};
+	});
 
 	// send message to every connected client except the sender
 	this.broadcast.emit('new_enemyPlayer', current_info);
@@ -90,8 +90,8 @@ console.log(data);
 
 	playerList.push(newPlayer);
 
-	this.emit('leaderBoard',leaderBoard);
-	this.broadcast.emit('leaderBoard',leaderBoard);
+	this.emit('leaderBoard',leaderBoard.slice(0,5));
+	this.broadcast.emit('leaderBoard',leaderBoard.slice(0,5));
 }
 
 // Called as soon as any client disconnects from the server. For example, when he refreshes the page, or closes it.
@@ -113,7 +113,7 @@ function onClientdisconnect() {
 	
 	// send message to every connected client except the sender
 	this.broadcast.emit('remove_player', {id: this.id});
-	this.broadcast.emit('leaderBoard',leaderBoard);
+	this.broadcast.emit('leaderBoard',leaderBoard.slice(0,5));
 }
 
 function chatMessage(data){
@@ -196,14 +196,11 @@ function update_board (data) {
 			return;
 		}
 	}
-	if (i < 5) {		
 		leaderBoard.push({ 
 			id : data.id,
 			name : data.name,
 			score : data.score
 		});
-	}
-
 }	
 
 // Called when server recieves message from client that it's player has killed another player.
