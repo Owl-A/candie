@@ -31,9 +31,7 @@ for (var i = 0; i < 100; ++i) {
 		color: i%3 
 	};
 };
-serv.listen('4040', function () {
-	console.log('server initiated');
-})
+serv.listen('4040', function () {})
 /** a list of all the players present in the game 
  * @type {list} */
 var playerList = []; 
@@ -67,11 +65,9 @@ var Player = function (startX, startY, init_color, name, score) {
  * @param {dictionary} data - contains data of the player to be created
 */
 function onNewplayer (data) {
-console.log(data);
 	//new player instance
 	var newPlayer = new Player(data.x, data.y, 0, data.name, 0);
 	
-	console.log("created new player with id " + this.id);
 	newPlayer.id = this.id; 	
 	//information to be sent to all clients except sender
 	var current_info = {
@@ -92,7 +88,6 @@ console.log(data);
 			color: existingPlayer.color,
 			name: existingPlayer.name
 		};
-		console.log("pushing player");
 
 		//send message to the sender-client only
 		this.emit("new_enemyPlayer", player_info);
@@ -121,7 +116,6 @@ console.log(data);
  * @function onClientDisconnect
 */
 function onClientdisconnect() {
-	console.log('disconnected');
 	var removePlayer = findPlayer(this.id);
 	
 	// Remove from the list of players
@@ -134,8 +128,6 @@ function onClientdisconnect() {
 		if (leaderBoard[i].id == this.id) leaderBoard.splice(i,1);
 	}
 
-	console.log("removing player " + this.id);
-	
 	// send message to every connected client except the sender
 	this.broadcast.emit('remove_player', {id: this.id});
 	this.broadcast.emit('leaderBoard',leaderBoard.slice(0,5));
@@ -152,8 +144,6 @@ function chatMessage(data){
 	// 	chat_message[i] = chat_message[i-1];
 	// }
 	// chat_message[0] = data.text;
-	// console.log(data);
-	console.log(data);
 	this.broadcast.emit('newChatmessage', data);
 	this.emit('newChatmessage', data)
 }	
@@ -172,8 +162,6 @@ function onFoodEaten (data) {
 	this.broadcast.emit('food_destroyed',data);
 	food[data.id].x = 3000*Math.random();
 	food[data.id].y = 3000*Math.random();
-
-	console.log(data.Pid + " ate " + data.id );
 
 	temp = {};
 	temp[data.id] = food[data.id];
@@ -275,8 +263,6 @@ function onKill (data) {
 		scoredBy.score += 10;
 		// update leaderboard
 		update_board(scoredBy);
-		console.log(leaderBoard);
-		console.log(removePlayer.id + " died");
 		// tell the killer client to update it's own score as well, used for displaying the same.
 		this.emit('update_score', scoredBy.score);
 	}
@@ -287,8 +273,6 @@ function onKill (data) {
 }
 
 io.sockets.on('connection', function(socket){
-	console.log("socket connected"); 
-	
 	socket.on('chat_message', chatMessage);
 	socket.on('disconnect', onClientdisconnect); 
 	

@@ -55,7 +55,6 @@ var main = function(game){
  * @function onsocketConnected
 */
 function onsocketConnected () {
-	console.log("connected to server"); 
 	socket.emit('new_player', {x: player.body.X, y: player.body.Y, name: Name});
 	player.body.sprite.id = socket.id; // try !!
 }
@@ -75,10 +74,7 @@ function onRemovePlayer (data) {
 
 	var removePlayer = find_Player_by_id(data.id);
 	// Player not found
-	if (!removePlayer) {
-		console.log('Player not found: ', data.id);
-		return;
-	}
+	if (!removePlayer) {return;	}
 
 	enemies.splice(enemies.indexOf(removePlayer), 1);
 	removePlayer.play.destroy();
@@ -136,14 +132,13 @@ function onNewPlayer (data) {
 	var new_enemy = new remote_player(data.id, data.x, data.y, data.name); 
 	new_enemy.play.anchor.set(0.5);
 
-	console.log(data.color);
 	new_enemy.play.frame = data.color; 	
 	new_enemy.play.type = data.color;  // PLayer properties, needed in collision callbacks.
 	
 	game.physics.p2.enable(new_enemy.play);
 	new_enemy.play.body.setCollisionGroup(enemyGrp);
 	new_enemy.play.body.collides([enemyGrp,playerGrp]);
-	new_enemy.play.body.collides(rfoodGrp,function (a,b) {console.log(b.sprite.id)},this);
+	new_enemy.play.body.collides(rfoodGrp,function (a,b) {},this);
 	new_enemy.play.body.damping = 0.7;
 	new_enemy.play.body.sprite.id = data.id;
 	enemies.push(new_enemy);
@@ -189,7 +184,6 @@ function onDeath () {
  * @param {dictionary} data - food particles
 */
 function onFoodUpdate (data) {	
-	console.log(data);
 	for (key in data) {
 		var col = data[key].color;
 		var temp;
@@ -214,7 +208,6 @@ function onFoodUpdate (data) {
 */
 function destroyFood (playr,food_particle) {
 	socket.emit('food_eaten',{ id : food_particle.sprite.id , Pid : playr.sprite.id}); // test
-	// console.log(playr.body.sprite.frame);	
 	playr.sprite.frame = food_particle.sprite.color;
 	playr.sprite.type = food_particle.sprite.color;
 	food_particle.sprite.destroy();
@@ -231,7 +224,6 @@ function onColorChange(data){
 		change_player = find_Player_by_id(id);
 		change_player.play.body.sprite.frame = data[id];
 		change_player.play.body.sprite.color = data[id];
-		console.log("change " + id + " to color " + data[id] );
 	}
 }
 
@@ -241,8 +233,6 @@ function onColorChange(data){
  * @param {dictionary} data - contains ID of the destroyed food particle.
 */
 function onFoodDestroyed (data) {
-	console.log(food[data.id]);
-	console.log('recieved ' + data.id);
 	food[data.id].food.body.sprite.destroy();
 	if(food[data.id].food.body) {
 		food[data.id].food.body.destroy();
@@ -272,13 +262,10 @@ function onChatUpdate (data){
 			textChat[i+1].visible = true;
 		}
 	}
-	console.log(textChat + "  " + n);
 	var j = Math.max(0,n-1);
-	console.log(data.text.length);
 	for(var i = 0; i<data.text.length;i+=textLength){
 		textChat[j].setText(data.text.substring(i, Math.min(i + textLength, data.text.length)) + "-");
 		j--;
-		console.log(n);
 	}
 	textChat[j+1].setText(textChat[j+1].text.substring(0,textChat[j+1].text.length - 1));
 }
@@ -321,7 +308,6 @@ function find_Player_by_id (id){
 */
 function onBoardUpdate (data) {
 	leaderBoard = data;
-	console.log(leaderBoard);
 	var l = leaderBoard.length;
 	for(var i=0;i<l;i++){
 		if(data[i].name.length > 14){
@@ -486,7 +472,6 @@ main.prototype = {
 
 		// add inbuilt follow cam
 		game.camera.follow(player, Phaser.Camera.FOLLOW_LOCKON, 1, 1);
-		console.log("client started");
 
 		socket.on("connect", onsocketConnected);
 		onsocketConnected();
@@ -498,7 +483,6 @@ main.prototype = {
 		//listen to enemy movement 
 		socket.on("enemy_move", onEnemyMove);
 		socket.on("update_score",function(data){ textscore.setText("Score:- " + data);
-		console.log(textscore);});		
 		// when received remove_player, remove the player passed; 
 		socket.on('remove_player', onRemovePlayer);
 
