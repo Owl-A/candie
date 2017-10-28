@@ -1,4 +1,32 @@
-/**
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: main.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: main.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
  * @file Manages main client side rendering of the game
  * @author sudoofus
 */
@@ -168,10 +196,10 @@ function onCollision(me, enemy) {
  * @function onDeath
 */
 function onDeath () {
-	for (var i = 0; i < enemies.length; i++) {
+	for (var i = 0; i &lt; enemies.length; i++) {
 			 enemies[i].play.destroy();
 	}		
-	for (var i = 0; i < foodnum; i++) {
+	for (var i = 0; i &lt; foodnum; i++) {
 		if (i in food) {
 			food[i].food.body.sprite.destroy();
 			if (food[i].food.body) {food[i].food.body.destroy()};
@@ -266,7 +294,7 @@ function onChatUpdate (data){
 	}
 	var textLength = 25
 	n = parseInt(data.text.length/textLength) + 1;
-	for(var j=0;j<n;j++){
+	for(var j=0;j&lt;n;j++){
 		for(var i=13;i>=0;i--){
 			textChat[i+1].setText(textChat[i].text + "");
 			textChat[i+1].visible = true;
@@ -275,7 +303,7 @@ function onChatUpdate (data){
 	console.log(textChat + "  " + n);
 	var j = Math.max(0,n-1);
 	console.log(data.text.length);
-	for(var i = 0; i<data.text.length;i+=textLength){
+	for(var i = 0; i&lt;data.text.length;i+=textLength){
 		textChat[j].setText(data.text.substring(i, Math.min(i + textLength, data.text.length)) + "-");
 		j--;
 		console.log(n);
@@ -307,7 +335,7 @@ function onEnemyMove (data) {
  * @param {Number} id - the ID of the player to be found
 */
 function find_Player_by_id (id){
-	for (var i = 0; i < enemies.length; i++) {
+	for (var i = 0; i &lt; enemies.length; i++) {
 		if (enemies[i].id == id) {
 			return enemies[i]; 
 		}
@@ -323,7 +351,7 @@ function onBoardUpdate (data) {
 	leaderBoard = data;
 	console.log(leaderBoard);
 	var l = leaderBoard.length;
-	for(var i=0;i<l;i++){
+	for(var i=0;i&lt;l;i++){
 		if(data[i].name.length > 14){
 			leaderboard[i].setText(data[i].name.substring(0,11) + "...   " + data[i].score);
 		}else{
@@ -331,7 +359,7 @@ function onBoardUpdate (data) {
 		}
 		round[i].visible = true;
 	}
-	for(var i =l;i<5;i++){
+	for(var i =l;i&lt;5;i++){
 		leaderboard[i].setText("");
 		round[i].visible = false;
 	}
@@ -393,7 +421,7 @@ main.prototype = {
 		});
 		chat.fixedToCamera = true;
 
-		for(var i = 1; i<16;i++){
+		for(var i = 1; i&lt;16;i++){
 
 
 
@@ -445,7 +473,7 @@ main.prototype = {
 			nametext.fixedToCamera = true;
 
 		// for adding leaderboard in the upper right corner
-		for(var i = 1; i<6;i++){
+		for(var i = 1; i&lt;6;i++){
 
 			temprect = game.add.sprite(document.documentElement.clientWidth - 120, 16 + 20*(i+1), 'round-rect');
 			temprect.width = 170;
@@ -540,3 +568,26 @@ main.prototype = {
 	}
 }
 
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="food_wrapper.html">food_wrapper</a></li><li><a href="Player.html">Player</a></li><li><a href="remote_player.html">remote_player</a></li></ul><h3>Global</h3><ul><li><a href="global.html#Chat">Chat</a></li><li><a href="global.html#chatMessage">chatMessage</a></li><li><a href="global.html#destroyFood">destroyFood</a></li><li><a href="global.html#enemies">enemies</a></li><li><a href="global.html#enemyGrp">enemyGrp</a></li><li><a href="global.html#find_Player_by_id">find_Player_by_id</a></li><li><a href="global.html#findPlayer">findPlayer</a></li><li><a href="global.html#food">food</a></li><li><a href="global.html#foodnum">foodnum</a></li><li><a href="global.html#leaderBoard">leaderBoard</a></li><li><a href="global.html#leaderboard">leaderboard</a></li><li><a href="global.html#onBoardUpdate">onBoardUpdate</a></li><li><a href="global.html#onChatUpdate">onChatUpdate</a></li><li><a href="global.html#onClientDisconnect">onClientDisconnect</a></li><li><a href="global.html#onCollision">onCollision</a></li><li><a href="global.html#onColorChange">onColorChange</a></li><li><a href="global.html#onDeath">onDeath</a></li><li><a href="global.html#onEnemyMove">onEnemyMove</a></li><li><a href="global.html#onFoodDestroyed">onFoodDestroyed</a></li><li><a href="global.html#onFoodEaten">onFoodEaten</a></li><li><a href="global.html#onFoodUpdate">onFoodUpdate</a></li><li><a href="global.html#onKill">onKill</a></li><li><a href="global.html#onMovePLayer">onMovePLayer</a></li><li><a href="global.html#onNewPlayer">onNewPlayer</a></li><li><a href="global.html#onRemovePlayer">onRemovePlayer</a></li><li><a href="global.html#onsocketConnected">onsocketConnected</a></li><li><a href="global.html#player">player</a></li><li><a href="global.html#playerGrp">playerGrp</a></li><li><a href="global.html#playerList">playerList</a></li><li><a href="global.html#rfood">rfood</a></li><li><a href="global.html#rfoodGrp">rfoodGrp</a></li><li><a href="global.html#round">round</a></li><li><a href="global.html#textChat">textChat</a></li><li><a href="global.html#textscore">textscore</a></li><li><a href="global.html#threshold">threshold</a></li><li><a href="global.html#update_board">update_board</a></li><li><a href="global.html#widthT">widthT</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sat Oct 28 2017 22:35:18 GMT+0530 (IST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

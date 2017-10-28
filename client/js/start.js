@@ -1,8 +1,15 @@
-// widthTex = 600;
+/**
+ * @file Manages start up logic of the game, the introduction page, and the name entering in the beginning.
+ * @author sudoofus
+*/
 var Name;
 var start =function(game){
 };
 
+/*
+ All the assets loading is done within start.prototype.
+ Also, this function creates the game world, sets up the introduction page, where the user enters the name of the player. Then it calls the main.js file for starting the game play.
+*/
 start.prototype = { 
 	preload: function() {
 		 game.load.spritesheet('circle', '/assets/ballsf.png',81,81,3);
