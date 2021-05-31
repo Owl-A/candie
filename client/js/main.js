@@ -489,7 +489,7 @@ main.prototype = {
 		socket.on('food_destroyed', onFoodDestroyed);
 
 		socket.on('newChatmessage', onChatUpdate);
-
+        })
 	},
 
 	update: function () {
@@ -520,7 +520,7 @@ main.prototype = {
 		X = chat.value;
 		socket.emit('chat_message', {name: Name, text: X});
 		chat.value = '';
-		//onChatUpdate({name: Name, text: X});
+		onChatUpdate({name: Name, text: X});
 	}
 }
 
